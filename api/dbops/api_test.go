@@ -2,7 +2,10 @@ package dbops
 
 import (
 	"database/sql"
+	"fmt"
+	"strconv"
 	"testing"
+	"time"
 )
 
 var tmpvid string
@@ -77,10 +80,8 @@ func testAddVideoInfo(t *testing.T) {
 }
 
 func testGetVideoInfo(t *testing.T) {
-	//video, err := GetVideoInfo(tmpvid)
-	_, err := GetVideoInfo(tmpvid)
-	//if video.Name != "test-video-first" || err != nil {
-	if err != nil {
+	video, err := GetVideoInfo(tmpvid)
+	if video.Name != "test-video-first" || err != nil {
 		t.Errorf("Error of GetVideoInfo: %v", err)
 	}
 }
@@ -96,5 +97,35 @@ func testRegetVideoInfo(t *testing.T) {
 	video, err := GetVideoInfo(tmpvid)
 	if video != nil && err != sql.ErrNoRows {
 		t.Errorf("Error of RegetVideoInfo: %v", err)
+	}
+}
+
+func TestCommets(t *testing.T) {
+	clearTables()
+	t.Run("AddUser", testAddUser)
+	t.Run("AddComment", testAddComment)
+	t.Run("ListComments", testListComments)
+}
+
+func testAddComment(t *testing.T) {
+	vid := "123"
+	aid := 1
+	content := "I like this video"
+	err := AddNewComment(vid, aid, content)
+	if err != nil {
+		t.Errorf("Error of AddComment: %v", err)
+	}
+}
+
+func testListComments(t *testing.T) {
+	vid := "123"
+	from := 1514764800
+	to, _ := strconv.Atoi(strconv.FormatInt(time.Now().UnixNano()/1e9, 10))
+	comments, err := ListComments(vid, from, to)
+	if err != nil {
+		t.Errorf("Error of ListComments: %v", err)
+	}
+	for i, c := range comments {
+		fmt.Printf("comment: %d, %v\n", i, c)
 	}
 }

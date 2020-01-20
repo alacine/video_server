@@ -102,3 +102,46 @@ func DeleteVideoInfo(vid string) error {
 	}
 	return nil
 }
+
+func AddNewComment(vid string, aid int, content string) error {
+	id, err := utils.NewUUID()
+	if err != nil {
+		return err
+	}
+	stmtIns, err := dbConn.Prepare("INSERT INTO comments (id, video_id, author_id, content) VALUES (?, ?, ?, ?)")
+	defer stmtIns.Close()
+	if err != nil {
+		return err
+	}
+	_, err = stmtIns.Exec(id, vid, aid, content)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func ListComments(vid string, from, to int) ([]*defs.Comment, error) {
+	stmtOut, err := dbConn.Prepare(`SELECT comments.id, users.login_name, comments.content
+		FROM comments INNER JOIN users ON comments.author_id = users.id
+		WHERE comments.video_id = ?
+		  AND comments.time > FROM_UNIXTIME(?)
+		  AND comments.time <= FROM_UNIXTIME(?)`)
+	/* 注意这里查询的区间是前开后闭，后带等号是因为在 MYSQL 里面记录的时间到秒，
+	 * 如果 to 是当前时间而且是开区间，写入之后马上读取会发生读不到的情况
+	 */
+	defer stmtOut.Close()
+	var comments []*defs.Comment
+	rows, err := stmtOut.Query(vid, from, to)
+	if err != nil {
+		return comments, err
+	}
+	for rows.Next() {
+		var id, name, content string
+		if err := rows.Scan(&id, &name, &content); err != nil {
+			return comments, err
+		}
+		c := &defs.Comment{Id: id, VideoId: vid, AuthorName: name, Content: content}
+		comments = append(comments, c)
+	}
+	return comments, nil
+}
