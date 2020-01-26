@@ -61,7 +61,8 @@ func AddNewVideo(aid int, name string) (*defs.VideoInfo, error) {
 	}
 	t := time.Now()
 	ctime := t.Format("Jan 02 2006, 15:04:05") //M D y, HH:MM:SS
-	stmtIns, err := dbConn.Prepare("INSERT INTO video_info (id, author_id, name, display_ctime) VALUES(?, ?, ?, ?)")
+	stmtIns, err := dbConn.Prepare(`INSERT INTO video_info (id, author_id, name, display_ctime) 
+									VALUES(?, ?, ?, ?)`)
 	defer stmtIns.Close()
 	if err != nil {
 		return nil, err
@@ -75,7 +76,8 @@ func AddNewVideo(aid int, name string) (*defs.VideoInfo, error) {
 }
 
 func GetVideoInfo(vid string) (*defs.VideoInfo, error) {
-	stmtOut, err := dbConn.Prepare("SELECT author_id, name, display_ctime FROM video_info WHERE id = ?")
+	stmtOut, err := dbConn.Prepare(`SELECT author_id, name, display_ctime 
+									FROM video_info WHERE id = ?`)
 	var aid int
 	var dct string
 	var name string
@@ -108,7 +110,8 @@ func AddNewComment(vid string, aid int, content string) error {
 	if err != nil {
 		return err
 	}
-	stmtIns, err := dbConn.Prepare("INSERT INTO comments (id, video_id, author_id, content) VALUES (?, ?, ?, ?)")
+	stmtIns, err := dbConn.Prepare(`INSERT INTO comments (id, video_id, author_id, content) 
+									VALUES (?, ?, ?, ?)`)
 	defer stmtIns.Close()
 	if err != nil {
 		return err
@@ -122,10 +125,10 @@ func AddNewComment(vid string, aid int, content string) error {
 
 func ListComments(vid string, from, to int) ([]*defs.Comment, error) {
 	stmtOut, err := dbConn.Prepare(`SELECT comments.id, users.login_name, comments.content
-		FROM comments INNER JOIN users ON comments.author_id = users.id
-		WHERE comments.video_id = ?
-		  AND comments.time > FROM_UNIXTIME(?)
-		  AND comments.time <= FROM_UNIXTIME(?)`)
+									FROM comments INNER JOIN users ON comments.author_id = users.id
+									WHERE comments.video_id = ?
+									  AND comments.time > FROM_UNIXTIME(?)
+									  AND comments.time <= FROM_UNIXTIME(?)`)
 	/* 注意这里查询的区间是前开后闭，后带等号是因为在 MYSQL 里面记录的时间到秒，
 	 * 如果 to 是当前时间而且是开区间，写入之后马上读取会发生读不到的情况
 	 */

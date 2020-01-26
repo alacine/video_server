@@ -33,6 +33,10 @@
 
 ### API 设计
 
+main -> middleware -> defs(message, err) -> handlers -> dbops -> response
+
+业务量较大的部分是 dbops 部分
+
 用户
 
 | operation        | URL              | Method | Status Code             |
