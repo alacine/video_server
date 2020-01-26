@@ -19,6 +19,7 @@ func AddUserCredential(loginName string, pwd string) error {
 	}
 	_, err = stmtIns.Exec(loginName, pwd)
 	if err != nil {
+		log.Printf("AddUserCredential error %s", err)
 		return err
 	}
 	return nil
