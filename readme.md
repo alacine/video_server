@@ -65,3 +65,15 @@ main -> middleware -> defs(message, err) -> handlers -> dbops -> response
 handler -> validation{1. request, 2. user} -> business logic -> response
 1. data model
 2. error handling
+
+
+### Streaming
+
+* 静态视频, 非 RTMP(Real-Time Messaging Protocol)
+* 独立的服务, 可独立部署
+* 统一的 api 格式
+
+bucket token
+
+bucket 中放置指定数量的 token, 当接受到 request 请求时, 为其分配一个 token,
+当发送 response 后, 释放这个 token
