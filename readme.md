@@ -77,3 +77,10 @@ bucket token
 
 bucket 中放置指定数量的 token, 当接受到 request 请求时, 为其分配一个 token,
 当发送 response 后, 释放这个 token
+
+
+## Scheduler
+
+1. RESTful 的 http server
+2. Timer(计时器)
+3. 生产者/消费者模型下的 task runner
