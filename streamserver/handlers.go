@@ -13,7 +13,7 @@ import (
 )
 
 func streamHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	vid := p.ByName("vid-id")
+	vid := p.ByName("vid")
 	vl := VIDEO_DIR + vid
 	video, err := os.Open(vl)
 	if err != nil {
@@ -55,7 +55,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, "Internal Error: ")
 	}
-	fn := p.ByName("vid-id")
+	fn := p.ByName("vid")
 	err = ioutil.WriteFile(VIDEO_DIR+fn, data, 0666)
 	if err != nil {
 		log.Printf("Write file error: %v", err)
