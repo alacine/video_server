@@ -84,3 +84,7 @@ bucket 中放置指定数量的 token, 当接受到 request 请求时, 为其分
 1. RESTful 的 http server
 2. Timer(计时器)
 3. 生产者/消费者模型下的 task runner
+
+api -> video_id -> mysql
+dispatcher -> mysql: video_id -> datachannel
+executor -> datachannel videoid -> delete videos
