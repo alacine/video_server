@@ -7,7 +7,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func DeleteVideoHandler() *httprouter.Router {
+func RegisterHandlers() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/delete-video/:vid", DeleteVideo)
 	return router
@@ -15,6 +15,6 @@ func DeleteVideoHandler() *httprouter.Router {
 
 func main() {
 	go taskrunner.Start()
-	d := DeleteVideoHandler()
-	http.ListenAndServe(":9001", d)
+	r := RegisterHandlers()
+	http.ListenAndServe(":9001", r)
 }

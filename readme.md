@@ -79,12 +79,29 @@ bucket 中放置指定数量的 token, 当接受到 request 请求时, 为其分
 当发送 response 后, 释放这个 token
 
 
-## Scheduler
+### Scheduler
 
 1. RESTful 的 http server
 2. Timer(计时器)
 3. 生产者/消费者模型下的 task runner
 
-api -> video_id -> mysql
-dispatcher -> mysql: video_id -> datachannel
-executor -> datachannel videoid -> delete videos
+* api -> video_id -> mysql
+* dispatcher -> mysql: video_id -> datachannel
+* executor -> datachannel videoid -> delete videos
+
+### Go 模板引擎
+
+* 模板引擎是将 html 解析和元素预置替换生成最终页面的工具
+* Go 的模板有两种 text/template 和 html/template
+* Go 的模板采用动态生成的模式
+
+结构
+```
+.
+├── templates
+│   └── home.html
+└── web
+    ├── client.go
+    ├── def.go
+    └── main.go
+```
