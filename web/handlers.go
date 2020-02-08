@@ -65,5 +65,13 @@ func apiHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		io.WriteString(w, string(re))
 		return
 	}
-	res, _ := ioutil.ReadAll
+	res, _ := ioutil.ReadAll(r.Body)
+	apibody := &ApiBody{}
+	if err := json.Unmarshal(res, apibody); err != nil {
+		re, _ := json.Marshal(ErrorRequestBodyParseFailed)
+		io.WriteString(w, string(re))
+		return
+	}
+	resquest(apibody, w, r)
+	defer r.Body.Close()
 }
