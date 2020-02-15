@@ -12,7 +12,7 @@ type middleWareHandler struct {
 
 func (m middleWareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// check session
-	validatreUserSession(r)
+	validateUserSession(r)
 	m.r.ServeHTTP(w, r)
 }
 
@@ -27,6 +27,14 @@ func RegisterHandlers() *httprouter.Router {
 
 	router.POST("/user", CreateUser)
 	router.POST("/user/:user_name", Login)
+	router.GET("/user/:user_name", GetUserInfo)
+
+	router.POST("/user/:user_name/video", AddNewVideo)
+	router.GET("/user/:user_name/videos", ListAllVideos)
+	router.DELETE("/user/:user_name/videos/:vid", DeleteVideo)
+
+	router.POST("/video/:vid/comments", PostComment)
+	router.GET("/video/:vid/comments", ListComments)
 
 	return router
 }

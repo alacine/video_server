@@ -11,7 +11,7 @@ var HEADER_FIELD_SESSION = "X-Session-Id"
 var HEADER_FIELD_UNAME = "X-User-Name"
 
 // session 校验
-func validatreUserSession(r *http.Request) bool {
+func validateUserSession(r *http.Request) bool {
 	sid := r.Header.Get(HEADER_FIELD_SESSION)
 	if len(sid) == 0 {
 		return false
@@ -28,7 +28,7 @@ func validatreUserSession(r *http.Request) bool {
 func validateUser(r *http.Request, w http.ResponseWriter) bool {
 	uname := r.Header.Get(HEADER_FIELD_UNAME)
 	if len(uname) == 0 {
-		sendErrorResponse(w, defs.ErrorNotAuthUser)
+		sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
 		return false
 	}
 	return true

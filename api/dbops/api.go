@@ -14,12 +14,12 @@ func AddUserCredential(loginName string, pwd string) error {
 	stmtIns, err := dbConn.Prepare("INSERT INTO users (login_name, pwd) VALUES (?, ?)")
 	defer stmtIns.Close()
 	if err != nil {
-		log.Printf("AddUserCredential error %s", err)
+		log.Printf("AddUserCredential sql prepare error: %s", err)
 		return err
 	}
 	_, err = stmtIns.Exec(loginName, pwd)
 	if err != nil {
-		log.Printf("AddUserCredential error %s", err)
+		log.Printf("AddUserCredential sql exec error: %s", err)
 		return err
 	}
 	return nil
@@ -29,26 +29,46 @@ func GetUserCredential(loginName string) (string, error) {
 	stmtOut, err := dbConn.Prepare("SELECT pwd FROM users WHERE login_name = ?")
 	defer stmtOut.Close()
 	if err != nil {
-		log.Printf("GetUserCredential error %s", err)
+		log.Printf("GetUserCredential sql prepare error %s", err)
 		return "", err
 	}
 	var pwd string
 	err = stmtOut.QueryRow(loginName).Scan(&pwd)
-	if err != nil && nil != sql.ErrNoRows {
+	if err != nil && err != sql.ErrNoRows {
+		log.Printf("GetUserCredential sql query error %s", err)
 		return "", err
 	}
 	return pwd, nil
+}
+
+func GetUser(loginName string) (*defs.User, error) {
+	stmtOut, err := dbConn.Prepare("select id, pwd from user where login_name = ?")
+	defer stmtOut.Close()
+	if err != nil {
+		log.Printf("GetUser sql prepare error: %s", err)
+		return nil, err
+	}
+	var id int
+	var pwd string
+	err = stmtOut.QueryRow(loginName).Scan(&id, &pwd)
+	if err != nil && err != sql.ErrNoRows {
+		log.Printf("GetUser sql query error: %s", err)
+		return nil, err
+	}
+	res := &defs.User{Id: id, LoginName: loginName, Pwd: pwd}
+	return res, nil
 }
 
 func DeleteUser(loginName string, pwd string) error {
 	stmtDel, err := dbConn.Prepare("DELETE FROM users WHERE login_name = ? AND pwd = ?")
 	defer stmtDel.Close()
 	if err != nil {
-		log.Printf("DeleteUser error: %s", err)
+		log.Printf("DeleteUser sql prepare error: %s", err)
 		return err
 	}
 	_, err = stmtDel.Exec(loginName, pwd)
 	if err != nil {
+		log.Printf("DeleteUser sql exec error: %s", err)
 		return err
 	}
 	return nil
@@ -93,6 +113,35 @@ func GetVideoInfo(vid string) (*defs.VideoInfo, error) {
 	return video, nil
 }
 
+func ListVideoInfo(uname string, from, to int) ([]*defs.VideoInfo, error) {
+	stmtOut, err := dbConn.Prepare(`
+		SELECT video_info.id, video_info.author_id, video_info.name, video_info.display_ctime
+		FROM video_info INNER JOIN users ON video_info.author_id = users.id
+		WHERE users.login_name = ? AND video_info.create_time between FROM_UNIXTIME(?) AND FROM_UNIXTIME(?)
+		ORDER BY video_info.create_time DESC
+	`)
+	defer stmtOut.Close()
+	var videos []*defs.VideoInfo
+	if err != nil {
+		return videos, err
+	}
+	rows, err := stmtOut.Query(uname, from, to)
+	if err != nil {
+		return videos, err
+	}
+	for rows.Next() {
+		var id, name, ctime string
+		var aid int
+		if err := rows.Scan(&id, &aid, &name, &ctime); err != nil {
+			return videos, err
+		}
+		v := &defs.VideoInfo{Id: id, AuthorId: aid, Name: name, DisplayCtime: ctime}
+		videos = append(videos, v)
+	}
+
+	return videos, nil
+}
+
 func DeleteVideoInfo(vid string) error {
 	stmtDel, err := dbConn.Prepare("DELETE FROM video_info WHERE id = ?")
 	defer stmtDel.Close()
@@ -129,7 +178,8 @@ func ListComments(vid string, from, to int) ([]*defs.Comment, error) {
 									FROM comments INNER JOIN users ON comments.author_id = users.id
 									WHERE comments.video_id = ?
 									  AND comments.time > FROM_UNIXTIME(?)
-									  AND comments.time <= FROM_UNIXTIME(?)`)
+									  AND comments.time <= FROM_UNIXTIME(?)
+									ORDER BY comments.time DESC`)
 	/* 注意这里查询的区间是前开后闭，后带等号是因为在 MYSQL 里面记录的时间到秒，
 	 * 如果 to 是当前时间而且是开区间，写入之后马上读取会发生读不到的情况
 	 */
