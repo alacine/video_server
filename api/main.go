@@ -13,6 +13,10 @@ type middleWareHandler struct {
 func (m middleWareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// check session
 	validateUserSession(r)
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json")
+	r.Header.Set("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
 	m.r.ServeHTTP(w, r)
 }
 
