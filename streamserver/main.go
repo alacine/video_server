@@ -16,6 +16,10 @@ func (m middleWareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusTooManyRequests, "Too many requests")
 		return
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json")
+	r.Header.Set("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
 	m.r.ServeHTTP(w, r)
 	defer m.l.ReleaseConn()
 }
@@ -31,7 +35,6 @@ func RegisterHandlers() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/videos/:vid", streamHandler)
 	router.POST("/upload/:vid", uploadHandler)
-	router.GET("/testpage", testPage)
 	return router
 }
 

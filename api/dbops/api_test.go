@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var tmpvid string
+var tmpvid int
 
 func clearTables() {
 	dbConn.Exec("truncate users")
@@ -118,7 +118,7 @@ func testAddComment(t *testing.T) {
 }
 
 func testListComments(t *testing.T) {
-	vid := "123"
+	vid := 123
 	from := 1514764800
 	to, _ := strconv.Atoi(strconv.FormatInt(time.Now().UnixNano()/1e9, 10))
 	comments, err := ListComments(vid, from, to)

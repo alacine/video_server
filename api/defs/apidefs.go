@@ -48,15 +48,16 @@ type User struct {
 }
 
 type VideoInfo struct {
-	Id           string
+	Id           int
 	AuthorId     int
 	Name         string
 	DisplayCtime string
+	Description  string `json:"description"`
 }
 
 type Comment struct {
 	Id         string
-	VideoId    string
+	VideoId    int
 	AuthorName string
 	Content    string
 }

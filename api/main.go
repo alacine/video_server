@@ -20,7 +20,7 @@ func (m middleWareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	m.r.ServeHTTP(w, r)
 }
 
-func NewMiddleWareHandler(r *httprouter.Router) http.Handler {
+func NewMiddleWareHandler(r *httprouter.Router, c int) http.Handler {
 	m := middleWareHandler{}
 	m.r = r
 	return m
@@ -32,10 +32,13 @@ func RegisterHandlers() *httprouter.Router {
 	router.POST("/user", CreateUser)
 	router.POST("/user/:user_name", Login)
 	router.GET("/user/:user_name", GetUserInfo)
+	router.GET("/user/:user_name/videos", ListUserVideos)
 
-	router.POST("/user/:user_name/video", AddNewVideo)
-	router.GET("/user/:user_name/videos", ListAllVideos)
-	router.DELETE("/user/:user_name/videos/:vid", DeleteVideo)
+	//router.POST("/user/:user_name/video", AddNewVideo)
+	//router.GET("/video/:vid", StreamVideo)
+	router.GET("/video/:vid/info", GetVideoInfo)
+	router.POST("/video", AddNewVideo)
+	router.DELETE("/videos/:vid/delete", DeleteVideo)
 
 	router.POST("/video/:vid/comments", PostComment)
 	router.GET("/video/:vid/comments", ListComments)
@@ -45,6 +48,6 @@ func RegisterHandlers() *httprouter.Router {
 
 func main() {
 	r := RegisterHandlers()
-	mh := NewMiddleWareHandler(r)
+	mh := NewMiddleWareHandler(r, 3)
 	http.ListenAndServe(":8000", mh)
 }

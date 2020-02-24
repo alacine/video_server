@@ -3,6 +3,7 @@ package dbops
 import (
 	"database/sql"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/alacine/video_server/api/defs"
@@ -76,27 +77,29 @@ func DeleteUser(loginName string, pwd string) error {
 
 func AddNewVideo(aid int, name string) (*defs.VideoInfo, error) {
 	// create uuid
-	vid, err := utils.NewUUID()
+	//vid, err := utils.NewUUID()
 	if err != nil {
 		return nil, err
 	}
 	t := time.Now()
 	ctime := t.Format("Jan 02 2006, 15:04:05") //M D y, HH:MM:SS
-	stmtIns, err := dbConn.Prepare(`INSERT INTO video_info (id, author_id, name, display_ctime) 
-									VALUES(?, ?, ?, ?)`)
+	stmtIns, err := dbConn.Prepare(`INSERT INTO video_info (author_id, name, display_ctime) 
+									VALUES(?, ?, ?)`)
 	defer stmtIns.Close()
 	if err != nil {
 		return nil, err
 	}
-	_, err = stmtIns.Exec(vid, aid, name, ctime)
+	result, err := stmtIns.Exec(aid, name, ctime)
 	if err != nil {
 		return nil, err
 	}
-	video := &defs.VideoInfo{Id: vid, AuthorId: aid, Name: name, DisplayCtime: ctime}
+	vid, err := result.LastInsertId()
+	log.Printf("get vid: %s", strconv.Itoa(int(vid)))
+	video := &defs.VideoInfo{Id: int(vid), AuthorId: aid, Name: name, DisplayCtime: ctime}
 	return video, nil
 }
 
-func GetVideoInfo(vid string) (*defs.VideoInfo, error) {
+func GetVideoInfo(vid int) (*defs.VideoInfo, error) {
 	stmtOut, err := dbConn.Prepare(`SELECT author_id, name, display_ctime 
 									FROM video_info WHERE id = ?`)
 	var aid int
@@ -130,8 +133,8 @@ func ListVideoInfo(uname string, from, to int) ([]*defs.VideoInfo, error) {
 		return videos, err
 	}
 	for rows.Next() {
-		var id, name, ctime string
-		var aid int
+		var name, ctime string
+		var id, aid int
 		if err := rows.Scan(&id, &aid, &name, &ctime); err != nil {
 			return videos, err
 		}
@@ -142,7 +145,7 @@ func ListVideoInfo(uname string, from, to int) ([]*defs.VideoInfo, error) {
 	return videos, nil
 }
 
-func DeleteVideoInfo(vid string) error {
+func DeleteVideoInfo(vid int) error {
 	stmtDel, err := dbConn.Prepare("DELETE FROM video_info WHERE id = ?")
 	defer stmtDel.Close()
 	if err != nil {
@@ -173,7 +176,7 @@ func AddNewComment(vid string, aid int, content string) error {
 	return nil
 }
 
-func ListComments(vid string, from, to int) ([]*defs.Comment, error) {
+func ListComments(vid int, from, to int) ([]*defs.Comment, error) {
 	stmtOut, err := dbConn.Prepare(`SELECT comments.id, users.login_name, comments.content
 									FROM comments INNER JOIN users ON comments.author_id = users.id
 									WHERE comments.video_id = ?

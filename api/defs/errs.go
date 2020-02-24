@@ -20,25 +20,32 @@ var (
 			ErrorCode: "001",
 		},
 	}
+	ErrorFileSize = ErrResponse{
+		HttpSC: http.StatusRequestEntityTooLarge,
+		Error: Err{
+			Error:     "File size error",
+			ErrorCode: "002",
+		},
+	}
 	ErrorNotAuthUser = ErrResponse{
 		HttpSC: http.StatusUnauthorized, // 401
 		Error: Err{
 			Error:     "User authentication failed",
-			ErrorCode: "002",
+			ErrorCode: "003",
 		},
 	}
 	ErrorDBError = ErrResponse{
 		HttpSC: http.StatusInternalServerError, // 500
 		Error: Err{
 			Error:     "DB ops failed",
-			ErrorCode: "003",
+			ErrorCode: "004",
 		},
 	}
 	ErrorInternalFaults = ErrResponse{
 		HttpSC: http.StatusInternalServerError, // 500
 		Error: Err{
 			Error:     "Internal service error",
-			ErrorCode: "004",
+			ErrorCode: "005",
 		},
 	}
 )
