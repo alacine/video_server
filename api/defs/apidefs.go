@@ -12,8 +12,14 @@ type NewComment struct {
 }
 
 type NewVideo struct {
-	AuthorId int    `json:"author_id"`
-	Name     string `json:"name"`
+	AuthorId    int    `json:"author_id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type Page struct {
+	Start int `json:"start"`
+	Limit int `json:"Page"`
 }
 
 // response
@@ -42,24 +48,25 @@ type Comments struct {
 
 // Data model
 type User struct {
-	Id        int    `json:"user_id"`
-	LoginName string `json:"login_name"`
-	Pwd       string `json:"pwd"`
+	Id   int    `json:"user_id"`
+	Name string `json:"name"`
+	Pwd  string `json:"pwd"`
 }
 
 type VideoInfo struct {
-	Id           int
-	AuthorId     int
-	Name         string
-	DisplayCtime string
+	Id           int    `json:"id"`
+	AuthorId     int    `json:"author_id"`
+	AuthorName   string `json:"author_name"`
+	Title        string `json:"title"`
+	DisplayCtime string `json:"displayctime"`
 	Description  string `json:"description"`
 }
 
 type Comment struct {
-	Id         string
-	VideoId    int
-	AuthorName string
-	Content    string
+	Id         string `json:"id"`
+	VideoId    int    `json:"video_id"`
+	AuthorName string `json:"author_name"`
+	Content    string `json:"content"`
 }
 
 type SimpleSession struct {

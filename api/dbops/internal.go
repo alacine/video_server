@@ -11,7 +11,7 @@ import (
 
 func InsertSession(sid string, ttl int64, uname string) error {
 	ttlstr := strconv.FormatInt(ttl, 10)
-	stmtIns, err := dbConn.Prepare(`INSERT INTO sessions (session_id, TTL, login_name) 
+	stmtIns, err := dbConn.Prepare(`INSERT INTO sessions (session_id, TTL, name) 
 									VALUES (?, ?, ?)`)
 	defer stmtIns.Close()
 	if err != nil {
@@ -26,7 +26,7 @@ func InsertSession(sid string, ttl int64, uname string) error {
 
 func RetrieveSession(sid string) (*defs.SimpleSession, error) {
 	ss := &defs.SimpleSession{}
-	stmtOut, err := dbConn.Prepare(`SELECT TTL, login_name 
+	stmtOut, err := dbConn.Prepare(`SELECT TTL, name 
 									FROM sessions WHERE session_id = ?`)
 	defer stmtOut.Close()
 	if err != nil {
@@ -64,12 +64,12 @@ func RetrieveAllSessions() (*sync.Map, error) {
 	for rows.Next() {
 		var id string
 		var ttlstr string
-		var login_name string
-		if err := rows.Scan(&id, ttlstr, login_name); err != nil {
+		var name string
+		if err := rows.Scan(&id, ttlstr, name); err != nil {
 			log.Printf("retrieve sessions error: %s", err)
 		}
 		if ttl, err := strconv.ParseInt(ttlstr, 10, 64); err == nil {
-			ss := &defs.SimpleSession{Username: login_name, TTL: ttl}
+			ss := &defs.SimpleSession{Username: name, TTL: ttl}
 			m.Store(id, ss)
 			log.Printf(" session id: %s, ttl: %d", id, ss.TTL)
 		} else {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -81,11 +80,43 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		log.Printf("(Error) GetUserInfo: %s", err)
 		return
 	}
-	ui := &defs.UserInfo{Id: duname.Id, Username: duname.LoginName}
+	ui := &defs.UserInfo{Id: duname.Id, Username: duname.Name}
 	if resp, err := json.Marshal(ui); err != nil {
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 	} else {
 		sendNormalResponse(w, string(resp), http.StatusOK) // 200
+	}
+}
+
+func ListUserVideos(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	uname := p.ByName("user_name")
+	videos, err := dbops.ListUserVideos(uname, 0, utils.GetCurrentTimestampSec())
+	if err != nil {
+		log.Printf("(Error) ListUserVideos: %s", err)
+		sendErrorResponse(w, defs.ErrorDBError) // 500
+		return
+	}
+	vsi := &defs.VideosInfo{Videos: videos}
+	if resp, err := json.Marshal(vsi); err != nil {
+		log.Printf("(Error) ListUserVideos: %s", err)
+		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
+		return
+	} else {
+		sendNormalResponse(w, string(resp), http.StatusOK) // 200
+	}
+}
+
+func ListVideos(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	videos, err := dbops.ListVideos()
+	if err != nil {
+		log.Printf("(Error) ListVideos: %s", err)
+		return
+	}
+	if resp, err := json.Marshal(videos); err != nil {
+		sendErrorResponse(w, defs.ErrorInternalFaults)
+		return
+	} else {
+		sendNormalResponse(w, string(resp), http.StatusOK)
 	}
 }
 
@@ -114,17 +145,19 @@ func AddNewVideo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 	// https://stackoverflow.com/questions/51460418/http-request-r-formvalue-returns-nothing-map
-	res := fmt.Sprintf("{\"author_id\":%s,\"name\":\"%s\"}", r.FormValue("author_id"), r.FormValue("name"))
-	//res, _ := ioutil.ReadAll(r.Body)
+	res, _ := ioutil.ReadAll(r.Body)
 	nvbody := &defs.NewVideo{}
 	if err := json.Unmarshal([]byte(res), nvbody); err != nil {
 		log.Printf("(Error) AddNewVideo: %s", err)
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
+	} else if len(nvbody.Title) == 0 {
+		log.Printf("(Error) AddNewVideo: %s", err)
+		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
+		return
 	}
 
-	vi, err := dbops.AddNewVideo(nvbody.AuthorId, nvbody.Name)
-	log.Printf("AuthorId: %d, NewVideo name: %s", nvbody.AuthorId, nvbody.Name)
+	vi, err := dbops.AddNewVideo(nvbody.AuthorId, nvbody.Title, nvbody.Description)
 	if err != nil {
 		log.Printf("(Error) AddNewVideo: %s", err)
 		sendErrorResponse(w, defs.ErrorDBError) // 500
@@ -136,54 +169,8 @@ func AddNewVideo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, defs.ErrorInternalFaults)
 		return
 	}
-
-	// save video
-	r.Body = http.MaxBytesReader(w, r.Body, defs.MAX_UPLOAD_SIZE)
-	if err := r.ParseMultipartForm(defs.MAX_UPLOAD_SIZE); err != nil {
-		dbops.DeleteVideoInfo(vi.Id)
-		sendErrorResponse(w, defs.ErrorFileSize)
-		return
-	}
-	file, _, err := r.FormFile("file")
-	if err != nil {
-		log.Printf("(Error) UploadVideo: %s", err)
-		dbops.DeleteVideoInfo(vi.Id)
-		sendErrorResponse(w, defs.ErrorInternalFaults)
-		return
-	}
-	data, err := ioutil.ReadAll(file)
-	if err != nil {
-		log.Printf("(Error) UploadVideo: %s", err)
-		dbops.DeleteVideoInfo(vi.Id)
-		sendErrorResponse(w, defs.ErrorInternalFaults)
-	}
-	log.Printf(defs.VIDEO_DIR + strconv.Itoa(vi.Id))
-	err = ioutil.WriteFile(defs.VIDEO_DIR+strconv.Itoa(vi.Id), data, 0666)
-	if err != nil {
-		log.Printf("(Error) UploadVideo: %s", err)
-		dbops.DeleteVideoInfo(vi.Id)
-		sendErrorResponse(w, defs.ErrorInternalFaults)
-		return
-	}
 	sendNormalResponse(w, string(resp), http.StatusCreated) // 201
-}
-
-func ListUserVideos(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	uname := p.ByName("user_name")
-	videos, err := dbops.ListVideoInfo(uname, 0, utils.GetCurrentTimestampSec())
-	if err != nil {
-		log.Printf("(Error) ListAllVideos: %s", err)
-		sendErrorResponse(w, defs.ErrorDBError) // 500
-		return
-	}
-	vsi := &defs.VideosInfo{Videos: videos}
-	if resp, err := json.Marshal(vsi); err != nil {
-		log.Printf("(Error) ListAllVideos: %s", err)
-		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
-		return
-	} else {
-		sendNormalResponse(w, string(resp), http.StatusOK) // 200
-	}
+	log.Printf("AuthorId: %d, NewVideo Title: %s", nvbody.AuthorId, nvbody.Title)
 }
 
 func DeleteVideo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {

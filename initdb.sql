@@ -1,3 +1,4 @@
+alter database video_server default character set utf8mb4;
 drop table if exists comments;
 drop table if exists sessions;
 drop table if exists users;
@@ -15,15 +16,15 @@ create table comments (
 create table sessions (
 	session_id tinytext not null,
 	TTL tinytext,
-	login_name text
+	name text
 );
-alter table sessions add primary key (session_id(64));
+alter table sessions add primary key (session_id(60));
 
 create table users (
 	id int unsigned not null auto_increment,
-	login_name varchar(64),
+	name varchar(40),
 	pwd text not null,
-	unique key (login_name),
+	unique key (name),
 	primary key (id)
 );
 
@@ -37,7 +38,7 @@ create table video_info (
 	id int unsigned not null auto_increment,
 	-- id varchar(64) not null,
 	author_id int(10),
-	name text,
+	title text,
     description text,
 	display_ctime text,
 	create_time datetime default current_timestamp,
