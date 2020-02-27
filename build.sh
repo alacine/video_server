@@ -1,11 +1,15 @@
 #!/bin/bash
 set -e -o pipefail
 
-# Build Web UI
-cd ~/go/src/github.com/alacine/video_server/web
-go install
-if [ ! -d ~/go/bin/video_server_web_ui ]; then
-    mkdir ~/go/bin/video_server_web_ui
+go install github.com/alacine/video_server/api
+go install github.com/alacine/video_server/streamserver
+go install github.com/alacine/video_server/scheduler
+
+if [ ! -d ~/go/bin/video_server ]; then
+    mkdir ~/go/bin/video_server
 fi
-cp ~/go/bin/web ~/go/bin/video_server_web_ui/web
-cp -R ~/go/src/github.com/alacine/video_server/templates_example ~/go/bin/video_server_web_ui/
+
+cp conf.json ~/go/bin/video_server/conf.json
+cp ~/go/bin/api ~/go/bin/video_server/api
+cp ~/go/bin/streamserver ~/go/bin/video_server/streamserver
+cp ~/go/bin/scheduler ~/go/bin/video_server/scheduler
