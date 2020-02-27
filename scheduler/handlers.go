@@ -19,5 +19,6 @@ func DeleteVideo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	if err != nil {
 		return
 	}
+	sendNormalResponse(w, http.StatusOK, "")
 	log.Printf("Delete video %v", vid)
 }

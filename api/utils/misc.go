@@ -31,7 +31,7 @@ func GetCurrentTimestampSec() int {
 
 func SendDeleteVideoRequest(vid int) {
 	addr := config.GetScheduler()
-	url := "http://" + addr + "/video/" + strconv.Itoa(vid)
+	url := "http://" + addr + "/scheduler/video/" + strconv.Itoa(vid)
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		log.Printf("(Error) SendDeleteVideoRequest error")
