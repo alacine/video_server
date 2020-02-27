@@ -18,7 +18,7 @@ func (m middleWareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
 	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, DELETE")
-	w.Header().Add("Access-Control-Allow-Headers", "Content-Type, X-Session-Id, X-X-User-Name")
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type, X-Session-Id, X-X-User-Name, Cookie")
 	w.Header().Set("Content-Type", "application/json")
 	r.Header.Set("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
 	m.r.ServeHTTP(w, r)

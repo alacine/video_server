@@ -3,7 +3,6 @@ package dbops
 import (
 	"database/sql"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/alacine/video_server/api/defs"
@@ -78,8 +77,8 @@ func DeleteUser(name string, pwd string) error {
 func ListVideos() ([]*defs.VideoInfo, error) {
 	stmtOut, err := dbConn.Prepare(`
 		SELECT
-			video_info.id, video_info.author_id, users.name,
-			video_info.title, video_info.display_ctime, video_info.description
+		  video_info.id, video_info.author_id, users.name,
+		  video_info.title, video_info.display_ctime, video_info.description
 		FROM video_info INNER JOIN users ON video_info.author_id = users.id
 		ORDER BY video_info.create_time DESC
 	`)
@@ -134,34 +133,43 @@ func AddNewVideo(aid int, title string, desp string) (*defs.VideoInfo, error) {
 		return nil, err
 	}
 	vid, err := result.LastInsertId()
-	log.Printf("get vid: %s", strconv.Itoa(int(vid)))
 	video := &defs.VideoInfo{Id: int(vid), AuthorId: aid, Title: title, DisplayCtime: ctime, Description: desp}
 	return video, nil
 }
 
 func GetVideoInfo(vid int) (*defs.VideoInfo, error) {
 	stmtOut, err := dbConn.Prepare(`
-		SELECT author_id, title, display_ctime, description
-		FROM video_info WHERE id = ?
+		SELECT
+		  video_info.author_id, users.name, video_info.title,
+		  video_info.display_ctime, video_info.description
+		FROM video_info INNER JOIN users ON video_info.author_id = users.id
+		WHERE video_info.id = ?
 	`)
 	var aid int
-	var dct string
-	var title string
-	var desp string
-	err = stmtOut.QueryRow(vid).Scan(&aid, &title, &dct, &desp)
+	var aname, ctime, title, desp string
+	err = stmtOut.QueryRow(vid).Scan(&aid, &aname, &title, &ctime, &desp)
 	defer stmtOut.Close()
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
-	video := &defs.VideoInfo{Id: vid, AuthorId: aid, Title: title, DisplayCtime: dct, Description: desp}
+	video := &defs.VideoInfo{
+		Id:           vid,
+		AuthorId:     aid,
+		AuthorName:   aname,
+		Title:        title,
+		DisplayCtime: ctime,
+		Description:  desp,
+	}
 	return video, nil
 }
 
 func ListUserVideos(uname string, from, to int) ([]*defs.VideoInfo, error) {
 	stmtOut, err := dbConn.Prepare(`
-		SELECT video_info.id, video_info.author_id, video_info.title, video_info.display_ctime
+		SELECT
+		  video_info.id, video_info.author_id, user.name,
+		  video_info.title, video_info.display_ctime
 		FROM video_info INNER JOIN users ON video_info.author_id = users.id
 		WHERE users.name = ?
 		  AND video_info.create_time > FROM_UNIXTIME(?)
@@ -180,12 +188,19 @@ func ListUserVideos(uname string, from, to int) ([]*defs.VideoInfo, error) {
 		return videos, err
 	}
 	for rows.Next() {
-		var title, ctime, desp string
+		var title, aname, ctime, desp string
 		var id, aid int
-		if err := rows.Scan(&id, &aid, &title, &ctime, &desp); err != nil {
+		if err := rows.Scan(&id, &aid, &aname, &title, &ctime, &desp); err != nil {
 			return videos, err
 		}
-		v := &defs.VideoInfo{Id: id, AuthorId: aid, Title: title, DisplayCtime: ctime, Description: desp}
+		v := &defs.VideoInfo{
+			Id:           id,
+			AuthorId:     aid,
+			AuthorName:   aname,
+			Title:        title,
+			DisplayCtime: ctime,
+			Description:  desp,
+		}
 		videos = append(videos, v)
 	}
 

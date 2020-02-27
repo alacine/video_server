@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"alacine/config"
 	"crypto/rand"
 	"fmt"
 	"io"
+	"log"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -24,4 +27,19 @@ func NewUUID() (string, error) {
 func GetCurrentTimestampSec() int {
 	timestamp, _ := strconv.Atoi(strconv.FormatInt(time.Now().UnixNano()/1e9, 10))
 	return timestamp
+}
+
+func SendDeleteVideoRequest(vid int) {
+	addr := config.GetScheduler()
+	url := "http://" + addr + "/video/" + strconv.Itoa(vid)
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		log.Printf("(Error) SendDeleteVideoRequest error")
+	}
+	// https://stackoverflow.com/questions/46310113/consume-a-delete-endpoint-from-golang
+	client := &http.Client{}
+	_, err = client.Do(req)
+	if err != nil {
+		log.Printf("(Error) SendDeleteVideoRequest error")
+	}
 }

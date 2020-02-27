@@ -9,7 +9,7 @@ import (
 
 func RegisterHandlers() *httprouter.Router {
 	router := httprouter.New()
-	router.GET("/delete-video/:vid", DeleteVideo)
+	router.DELETE("/video/:vid", DeleteVideo)
 	return router
 }
 

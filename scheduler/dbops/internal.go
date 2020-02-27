@@ -5,10 +5,10 @@ import (
 	"log"
 )
 
-func ReadVideoDeletionRecord(count int) ([]string, error) {
+func ReadVideoDeletionRecord(count int) ([]int, error) {
 	stmtOut, err := dbConn.Prepare("SELECT video_id FROM video_del_rec LIMIT ?")
 	defer stmtOut.Close()
-	var ids []string
+	var ids []int
 	if err != nil {
 		return ids, err
 	}
@@ -18,7 +18,7 @@ func ReadVideoDeletionRecord(count int) ([]string, error) {
 		return ids, err
 	}
 	for row.Next() {
-		var id string
+		var id int
 		if err := row.Scan(&id); err != nil {
 			return ids, err
 		}
@@ -27,7 +27,7 @@ func ReadVideoDeletionRecord(count int) ([]string, error) {
 	return ids, nil
 }
 
-func DelVideoDeletionRecord(vid string) error {
+func DelVideoDeletionRecord(vid int) error {
 	stmtDel, err := dbConn.Prepare("DELETE FROM video_del_rec WHERE video_id = ?")
 	defer stmtDel.Close()
 	if err != nil {

@@ -4,13 +4,14 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strconv"
 	"sync"
 
 	"github.com/alacine/video_server/scheduler/dbops"
 )
 
-func deleteVideo(vid string) error {
-	err := os.Remove(VIDEO_DIR + vid)
+func deleteVideo(vid int) error {
+	err := os.Remove(VIDEO_DIR + strconv.Itoa(vid))
 	if err != nil && !os.IsNotExist(err) {
 		log.Printf("Deleting video error")
 		return err
@@ -40,10 +41,10 @@ forloop:
 		select {
 		case vid := <-dc:
 			go func(id interface{}) {
-				if err := deleteVideo(id.(string)); err != nil {
+				if err := deleteVideo(id.(int)); err != nil {
 					errMap.Store(id, err)
 				}
-				if err := dbops.DelVideoDeletionRecord(id.(string)); err != nil {
+				if err := dbops.DelVideoDeletionRecord(id.(int)); err != nil {
 					return
 				}
 			}(vid)
