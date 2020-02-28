@@ -10,7 +10,7 @@ create table comments (
 	video_id varchar(64),
 	author_id int(10),
 	content text,
-	time datetime default current_timestamp, primary key(id)
+	post_time datetime default current_timestamp, primary key(id)
 );
 
 create table sessions (

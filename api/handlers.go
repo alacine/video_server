@@ -206,7 +206,12 @@ func PostComment(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 		return
 	}
-	vid := p.ByName("vid")
+	vid, err := strconv.Atoi(p.ByName("vid"))
+	if err != nil {
+		log.Printf("(Error) PostComment: %s", err)
+		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
+	}
+	log.Printf("postcomment %v, %v", vid, cbody)
 	if err := dbops.AddNewComment(vid, cbody.AuthorId, cbody.Content); err != nil {
 		log.Printf("(Error) PostComment: %s", err)
 		sendErrorResponse(w, defs.ErrorDBError) // 500
