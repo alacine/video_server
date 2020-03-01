@@ -71,6 +71,7 @@ type Comment struct {
 }
 
 type SimpleSession struct {
-	Username string // login name
-	TTL      int64
+	SessionId string
+	Username  string // login name
+	TTL       int64
 }

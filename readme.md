@@ -10,8 +10,8 @@ main -> middleware -> defs(message, err) -> handlers -> dbops -> response
 
 | operation        | URL                  | Method | Status Code             |
 |------------------|----------------------|--------|-------------------------|
-| 创建(注册)用户   | /api/user            | POST   | 201, 400, 500           |
-| 用户登录         | /api/user/:user_name | POST   | 200, 400, 500           |
+| 创建(注册)用户   | /api/register        | POST   | 201, 400, 500           |
+| 用户登录         | /api/login           | POST   | 200, 400, 500           |
 | 获取用户基本信息 | /api/user/:user_name | GET    | 200, 400, 401, 403, 500 |
 | 用户注销         | /api/user/:user_name | DELETE | 204, 400, 401, 403, 500 |
 

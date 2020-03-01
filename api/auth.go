@@ -18,7 +18,7 @@ func validateUserSession(r *http.Request) bool {
 	}
 	uname, ok := session.IsSessionExpired(sid)
 	if ok {
-		return true
+		return false
 	}
 	r.Header.Add(HEADER_FIELD_UNAME, uname)
 	return true

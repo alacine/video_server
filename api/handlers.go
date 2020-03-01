@@ -46,25 +46,25 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
 	}
-	uname := p.ByName("user_name")
-	if uname != ubody.Username {
-		log.Printf("(Error) Login: url's name is different with body's name")
-		sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
-		return
-	}
-	pwd, err := dbops.GetUserCredential(uname)
+	//uname := p.ByName("user_name")
+	//if uname != ubody.Username {
+	//log.Printf("(Error) Login: url's name is different with body's name")
+	//sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
+	//return
+	//}
+	pwd, err := dbops.GetUserCredential(ubody.Username)
 	if err != nil || len(pwd) == 0 || pwd != ubody.Pwd {
-		log.Printf("(Error) Login: user %s login failed", uname)
+		log.Printf("(Error) Login: user %s login failed", ubody.Username)
 		sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
 		return
 	}
 
-	id := session.GenerateNewSessionId(uname)
+	id := session.GenerateNewSessionId(ubody.Username)
 	si := &defs.SignedIn{Success: true, SessionId: id}
 	if resp, err := json.Marshal(si); err != nil {
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 	} else {
-		log.Printf("(Error) Login: user %s login succeed", uname)
+		log.Printf("Login: user %s login succeed", ubody.Username)
 		sendNormalResponse(w, string(resp), http.StatusOK)
 	}
 }

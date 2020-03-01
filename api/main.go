@@ -15,9 +15,9 @@ func (m middleWareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	validateUserSession(r)
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
 	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, DELETE")
-	w.Header().Add("Access-Control-Allow-Headers", "Content-Type, X-Session-Id, X-X-User-Name, Cookie")
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type, X-Session-Id, X-User-Id, Cookie")
 	w.Header().Set("Content-Type", "application/json")
-	r.Header.Set("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
+	w.Header().Add("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
 	m.r.ServeHTTP(w, r)
 }
 
@@ -30,8 +30,8 @@ func NewMiddleWareHandler(r *httprouter.Router, c int) http.Handler {
 func RegisterHandlers() *httprouter.Router {
 	router := httprouter.New()
 
-	router.POST("/api/user", CreateUser)
-	router.POST("/api/user/:user_name", Login)
+	router.POST("/api/register", CreateUser)
+	router.POST("/api/login", Login)
 	router.GET("/api/user/:user_name", GetUserInfo)
 	router.GET("/api/user/:user_name/videos", ListUserVideos)
 
