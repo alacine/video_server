@@ -30,20 +30,20 @@ func NewMiddleWareHandler(r *httprouter.Router, c int) http.Handler {
 func RegisterHandlers() *httprouter.Router {
 	router := httprouter.New()
 
-	router.POST("/api/register", CreateUser)
-	router.POST("/api/login", Login)
-	router.GET("/api/user/:user_name", GetUserInfo)
-	router.GET("/api/user/:user_name/videos", ListUserVideos)
+	router.POST("/api/users", CreateUser)
+	router.GET("/api/users/:uid", GetUserInfo)
+	router.GET("/api/users/:uid/videos", ListUserVideos)
 
-	//router.POST("/user/:user_name/video", AddNewVideo)
-	//router.GET("/video/:vid", StreamVideo)
+	router.POST("/api/sessions", Login)
+	router.DELETE("/api/sessions", Logout)
+
 	router.GET("/api/videos", ListVideos)
-	router.GET("/api/video/:vid", GetVideoInfo)
-	router.POST("/api/video", AddNewVideo)
-	router.DELETE("/api/video/:vid", DeleteVideo)
+	router.GET("/api/videos/:vid", GetVideoInfo)
+	router.POST("/api/videos", AddNewVideo)
+	router.DELETE("/api/videos/:vid", DeleteVideo)
 
-	router.POST("/api/video/:vid/comments", PostComment)
-	router.GET("/api/video/:vid/comments", ListComments)
+	router.POST("/api/videos/:vid/comments", PostComment)
+	router.GET("/api/videos/:vid/comments", ListComments)
 
 	return router
 }

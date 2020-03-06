@@ -41,21 +41,20 @@ func GetUserCredential(name string) (string, error) {
 	return pwd, nil
 }
 
-func GetUser(name string) (*defs.User, error) {
-	stmtOut, err := dbConn.Prepare("select id, pwd from users where name = ?")
+func GetUser(uid int) (*defs.User, error) {
+	stmtOut, err := dbConn.Prepare("select id, pwd from users where id = ?")
 	defer stmtOut.Close()
 	if err != nil {
 		log.Printf("(ERROR) GetUser sql prepare error: %s", err)
 		return nil, err
 	}
-	var id int
-	var pwd string
-	err = stmtOut.QueryRow(name).Scan(&id, &pwd)
+	var uname, pwd string
+	err = stmtOut.QueryRow(uid).Scan(&uname, &pwd)
 	if err != nil && err != sql.ErrNoRows {
 		log.Printf("(ERROR) GetUser sql query error: %s", err)
 		return nil, err
 	}
-	res := &defs.User{Id: id, Name: name, Pwd: pwd}
+	res := &defs.User{Id: uid, Name: uname, Pwd: pwd}
 	return res, nil
 }
 
@@ -165,13 +164,13 @@ func GetVideoInfo(vid int) (*defs.VideoInfo, error) {
 	return video, nil
 }
 
-func ListUserVideos(uname string, from, to int) ([]*defs.VideoInfo, error) {
+func ListUserVideos(uid, from, to int) ([]*defs.VideoInfo, error) {
 	stmtOut, err := dbConn.Prepare(`
 		SELECT
-		  video_info.id, video_info.author_id, user.name,
+		  video_info.id, video_info.author_id, users.name,
 		  video_info.title, video_info.display_ctime
 		FROM video_info INNER JOIN users ON video_info.author_id = users.id
-		WHERE users.name = ?
+		WHERE users.id = ?
 		  AND video_info.create_time > FROM_UNIXTIME(?)
 		  AND video_info.create_time <= FROM_UNIXTIME(?)
 		ORDER BY video_info.create_time DESC
@@ -182,7 +181,7 @@ func ListUserVideos(uname string, from, to int) ([]*defs.VideoInfo, error) {
 		log.Printf("(ERROR) ListUserVideos sql prepare error: %s", err)
 		return videos, err
 	}
-	rows, err := stmtOut.Query(uname, from, to)
+	rows, err := stmtOut.Query(uid, from, to)
 	if err != nil {
 		log.Printf("(ERROR) ListUserVideos sql query error: %s", err)
 		return videos, err
@@ -203,7 +202,6 @@ func ListUserVideos(uname string, from, to int) ([]*defs.VideoInfo, error) {
 		}
 		videos = append(videos, v)
 	}
-
 	return videos, nil
 }
 

@@ -20,10 +20,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ubody := &defs.UserCredential{}
 	if err := json.Unmarshal(res, ubody); err != nil {
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
+		log.Printf("(Error) CreateUser: %s", err)
+		return
 	}
 
 	if err := dbops.AddUserCredential(ubody.Username, ubody.Pwd); err != nil {
 		sendErrorResponse(w, defs.ErrorDBError) // 500
+		log.Printf("(Error) CreateUser: %s", err)
 		return
 	}
 
@@ -37,6 +40,53 @@ func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 }
 
+func GetUserInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	if !validateUser(r, w) {
+		log.Printf("(Error) GetUserInfo: validateUser error")
+		return
+	}
+	uid, err := strconv.Atoi(p.ByName("uid"))
+	if err != nil {
+		log.Printf("(Error) GetUserInfo: %s", err)
+		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed)
+		return
+	}
+	duname, err := dbops.GetUser(uid)
+	if err != nil {
+		log.Printf("(Error) GetUserInfo: %s", err)
+		return
+	}
+	ui := &defs.UserInfo{Id: duname.Id, Username: duname.Name}
+	if resp, err := json.Marshal(ui); err != nil {
+		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
+	} else {
+		sendNormalResponse(w, string(resp), http.StatusOK) // 200
+	}
+}
+
+func ListUserVideos(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	uid, err := strconv.Atoi(p.ByName("uid"))
+	if err != nil {
+		log.Printf("(Error) ListUserVideos: %s", err)
+		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed)
+		return
+	}
+	videos, err := dbops.ListUserVideos(uid, 0, utils.GetCurrentTimestampSec())
+	if err != nil {
+		log.Printf("(Error) ListUserVideos: %s", err)
+		sendErrorResponse(w, defs.ErrorDBError) // 500
+		return
+	}
+	vsi := &defs.VideosInfo{Videos: videos}
+	if resp, err := json.Marshal(vsi); err != nil {
+		log.Printf("(Error) ListUserVideos: %s", err)
+		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
+		return
+	} else {
+		sendNormalResponse(w, string(resp), http.StatusOK) // 200
+	}
+}
+
 func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	res, _ := ioutil.ReadAll(r.Body)
 	log.Printf("%s", res)
@@ -46,12 +96,6 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
 	}
-	//uname := p.ByName("user_name")
-	//if uname != ubody.Username {
-	//log.Printf("(Error) Login: url's name is different with body's name")
-	//sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
-	//return
-	//}
 	pwd, err := dbops.GetUserCredential(ubody.Username)
 	if err != nil || len(pwd) == 0 || pwd != ubody.Pwd {
 		log.Printf("(Error) Login: user %s login failed", ubody.Username)
@@ -69,41 +113,17 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 }
 
-func GetUserInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	if !validateUser(r, w) {
-		log.Printf("(Error) GetUserInfo: validateUser error")
+func Logout(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	res, _ := ioutil.ReadAll(r.Body)
+	log.Printf("%s", res)
+	ubody := &defs.SimpleSession{}
+	if err := json.Unmarshal(res, ubody); err != nil {
+		log.Printf("(Error) Logout: %s", err)
+		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
 	}
-	puname := p.ByName("user_name")
-	duname, err := dbops.GetUser(puname)
-	if err != nil {
-		log.Printf("(Error) GetUserInfo: %s", err)
-		return
-	}
-	ui := &defs.UserInfo{Id: duname.Id, Username: duname.Name}
-	if resp, err := json.Marshal(ui); err != nil {
-		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
-	} else {
-		sendNormalResponse(w, string(resp), http.StatusOK) // 200
-	}
-}
-
-func ListUserVideos(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	uname := p.ByName("user_name")
-	videos, err := dbops.ListUserVideos(uname, 0, utils.GetCurrentTimestampSec())
-	if err != nil {
-		log.Printf("(Error) ListUserVideos: %s", err)
-		sendErrorResponse(w, defs.ErrorDBError) // 500
-		return
-	}
-	vsi := &defs.VideosInfo{Videos: videos}
-	if resp, err := json.Marshal(vsi); err != nil {
-		log.Printf("(Error) ListUserVideos: %s", err)
-		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
-		return
-	} else {
-		sendNormalResponse(w, string(resp), http.StatusOK) // 200
-	}
+	session.DeleteExpiredSession(ubody.SessionId)
+	sendNormalResponse(w, "Logout", http.StatusResetContent) // 205
 }
 
 func ListVideos(w http.ResponseWriter, r *http.Request, p httprouter.Params) {

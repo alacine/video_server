@@ -72,7 +72,7 @@ func TestVideoWorkFlow(t *testing.T) {
 }
 
 func testAddVideoInfo(t *testing.T) {
-	video, err := AddNewVideo(1, "test-video-first")
+	video, err := AddNewVideo(1, "test-video-first", "description-video-first")
 	if err != nil {
 		t.Errorf("Error of AddVideoInfo: %v", err)
 	}
@@ -81,7 +81,7 @@ func testAddVideoInfo(t *testing.T) {
 
 func testGetVideoInfo(t *testing.T) {
 	video, err := GetVideoInfo(tmpvid)
-	if video.Name != "test-video-first" || err != nil {
+	if video.Title != "test-video-first" || err != nil {
 		t.Errorf("Error of GetVideoInfo: %v", err)
 	}
 }
@@ -108,7 +108,7 @@ func TestCommets(t *testing.T) {
 }
 
 func testAddComment(t *testing.T) {
-	vid := "123"
+	vid := 123
 	aid := 1
 	content := "I like this video"
 	err := AddNewComment(vid, aid, content)

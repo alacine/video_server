@@ -19,7 +19,7 @@ func nowInMilli() int64 {
 	return time.Now().UnixNano() / 1e6
 }
 
-func deleteExpiredSession(sid string) {
+func DeleteExpiredSession(sid string) {
 	sessionMap.Delete(sid)
 	dbops.DeleteSession(sid)
 }
@@ -51,7 +51,7 @@ func IsSessionExpired(sid string) (string, bool) {
 	if ok {
 		ct := nowInMilli()
 		if ss.(*defs.SimpleSession).TTL < ct {
-			deleteExpiredSession(sid)
+			DeleteExpiredSession(sid)
 			return "", true
 		}
 		return ss.(*defs.SimpleSession).Username, false
