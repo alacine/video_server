@@ -26,8 +26,15 @@ func validateUserSession(r *http.Request) bool {
 
 // user 校验
 func validateUser(r *http.Request, w http.ResponseWriter) bool {
-	uname := r.Header.Get(HEADER_FIELD_UNAME)
-	if len(uname) == 0 {
+	session_id, err := r.Cookie(HEADER_FIELD_SESSION)
+	if err != nil {
+		return false
+	}
+	uname, err := r.Cookie(HEADER_FIELD_UNAME)
+	if err != nil {
+		return false
+	}
+	if len(uname.Value) == 0 || len(session_id.Value) == 0 {
 		sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
 		return false
 	}
