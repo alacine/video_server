@@ -9,15 +9,15 @@ import (
 	"github.com/alacine/video_server/api/defs"
 )
 
-func InsertSession(sid string, ttl int64, uname string) error {
+func InsertSession(sid string, ttl int64, uid int) error {
 	ttlstr := strconv.FormatInt(ttl, 10)
-	stmtIns, err := dbConn.Prepare(`INSERT INTO sessions (session_id, TTL, name) 
+	stmtIns, err := dbConn.Prepare(`INSERT INTO sessions (session_id, TTL, uid) 
 									VALUES (?, ?, ?)`)
 	defer stmtIns.Close()
 	if err != nil {
 		return err
 	}
-	_, err = stmtIns.Exec(sid, ttlstr, uname)
+	_, err = stmtIns.Exec(sid, ttlstr, uid)
 	if err != nil {
 		return err
 	}
@@ -33,14 +33,14 @@ func RetrieveSession(sid string) (*defs.SimpleSession, error) {
 		return nil, err
 	}
 	var ttl string
-	var uname string
-	err = stmtOut.QueryRow(sid).Scan(&ttl, &uname)
+	var uid int
+	err = stmtOut.QueryRow(sid).Scan(&ttl, &uid)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
 	if res, err := strconv.ParseInt(ttl, 10, 64); err == nil {
 		ss.TTL = res
-		ss.Username = uname
+		ss.UserId = uid
 	} else {
 		return nil, err
 	}
@@ -64,12 +64,12 @@ func RetrieveAllSessions() (*sync.Map, error) {
 	for rows.Next() {
 		var id string
 		var ttlstr string
-		var name string
-		if err := rows.Scan(&id, ttlstr, name); err != nil {
+		var uid int
+		if err := rows.Scan(&id, ttlstr, uid); err != nil {
 			log.Printf("retrieve sessions error: %s", err)
 		}
 		if ttl, err := strconv.ParseInt(ttlstr, 10, 64); err == nil {
-			ss := &defs.SimpleSession{Username: name, TTL: ttl}
+			ss := &defs.SimpleSession{UserId: uid, TTL: ttl}
 			m.Store(id, ss)
 			log.Printf(" session id: %s, ttl: %d", id, ss.TTL)
 		} else {

@@ -23,14 +23,15 @@ type Page struct {
 }
 
 // response
-type SignedUp struct {
-	Success   bool   `json:"success"`
-	SessionId string `json:"session_id"`
-}
+//type SignedUp struct {
+//Success   bool   `json:"success"`
+//SessionId string `json:"session_id"`
+//}
 
 type SignedIn struct {
 	Success   bool   `json:"success"`
 	SessionId string `json:"session_id"`
+	UserId    int    `json:"user_id"`
 }
 
 type UserInfo struct {
@@ -72,6 +73,6 @@ type Comment struct {
 
 type SimpleSession struct {
 	SessionId string
-	Username  string // login name
+	UserId    int
 	TTL       int64
 }

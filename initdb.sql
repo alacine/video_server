@@ -16,7 +16,7 @@ create table comments (
 create table sessions (
 	session_id tinytext not null,
 	TTL tinytext,
-	name text
+    uid int
 );
 alter table sessions add primary key (session_id(60));
 

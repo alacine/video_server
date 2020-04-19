@@ -36,25 +36,25 @@ func LoadSessionsFromDB() {
 	})
 }
 
-func GenerateNewSessionId(un string) string {
+func GenerateNewSessionId(uid int) string {
 	id, _ := utils.NewUUID()
 	ct := nowInMilli()
 	ttl := ct + 30*60*1000 // Serverside session vaild time: 30 min
-	ss := &defs.SimpleSession{Username: un, TTL: ttl}
+	ss := &defs.SimpleSession{UserId: uid, TTL: ttl}
 	sessionMap.Store(id, ss)
-	dbops.InsertSession(id, ttl, un)
+	dbops.InsertSession(id, ttl, uid)
 	return id
 }
 
-func IsSessionExpired(sid string) (string, bool) {
+func IsSessionExpired(sid string) (int, bool) {
 	ss, ok := sessionMap.Load(sid)
 	if ok {
 		ct := nowInMilli()
 		if ss.(*defs.SimpleSession).TTL < ct {
 			DeleteExpiredSession(sid)
-			return "", true
+			return 0, true
 		}
-		return ss.(*defs.SimpleSession).Username, false
+		return ss.(*defs.SimpleSession).UserId, false
 	}
-	return "", true
+	return 0, true
 }

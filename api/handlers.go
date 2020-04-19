@@ -30,14 +30,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 
-	id := session.GenerateNewSessionId(ubody.Username)
-	su := &defs.SignedUp{Success: true, SessionId: id}
+	sendNormalResponse(w, "", http.StatusCreated) // 201
+	//id := session.GenerateNewSessionId(ubody.Username)
+	//su := &defs.SignedUp{Success: true, SessionId: id}
 
-	if resp, err := json.Marshal(su); err != nil {
-		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
-	} else {
-		sendNormalResponse(w, string(resp), http.StatusCreated) // 201
-	}
+	//if resp, err := json.Marshal(su); err != nil {
+	//sendErrorResponse(w, defs.ErrorInternalFaults) // 500
+	//} else {
+	//sendNormalResponse(w, string(resp), http.StatusCreated) // 201
+	//}
 }
 
 func GetUserInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -96,15 +97,15 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
 	}
-	pwd, err := dbops.GetUserCredential(ubody.Username)
+	uid, pwd, err := dbops.GetUserCredential(ubody.Username)
 	if err != nil || len(pwd) == 0 || pwd != ubody.Pwd {
 		log.Printf("(Error) Login: user %s login failed", ubody.Username)
 		sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
 		return
 	}
 
-	id := session.GenerateNewSessionId(ubody.Username)
-	si := &defs.SignedIn{Success: true, SessionId: id}
+	id := session.GenerateNewSessionId(uid)
+	si := &defs.SignedIn{Success: true, SessionId: id, UserId: uid}
 	if resp, err := json.Marshal(si); err != nil {
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 	} else {

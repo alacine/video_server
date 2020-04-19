@@ -25,20 +25,21 @@ func AddUserCredential(name string, pwd string) error {
 	return nil
 }
 
-func GetUserCredential(name string) (string, error) {
-	stmtOut, err := dbConn.Prepare("SELECT pwd FROM users WHERE name = ?")
+func GetUserCredential(name string) (int, string, error) {
+	stmtOut, err := dbConn.Prepare("SELECT id, pwd FROM users WHERE name = ?")
 	defer stmtOut.Close()
 	if err != nil {
 		log.Printf("(ERROR) GetUserCredential sql prepare error %s", err)
-		return "", err
+		return 0, "", err
 	}
 	var pwd string
-	err = stmtOut.QueryRow(name).Scan(&pwd)
+	var uid int
+	err = stmtOut.QueryRow(name).Scan(&uid, &pwd)
 	if err != nil && err != sql.ErrNoRows {
 		log.Printf("(ERROR) GetUserCredential sql query error %s", err)
-		return "", err
+		return 0, "", err
 	}
-	return pwd, nil
+	return uid, pwd, nil
 }
 
 func GetUser(uid int) (*defs.User, error) {

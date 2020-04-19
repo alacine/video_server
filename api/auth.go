@@ -8,7 +8,7 @@ import (
 )
 
 var HEADER_FIELD_SESSION = "X-Session-Id"
-var HEADER_FIELD_UNAME = "X-User-Name"
+var HEADER_FIELD_UID = "X-User-Id"
 
 // session 校验
 func validateUserSession(r *http.Request) bool {
@@ -16,11 +16,11 @@ func validateUserSession(r *http.Request) bool {
 	if len(sid) == 0 {
 		return false
 	}
-	uname, ok := session.IsSessionExpired(sid)
+	uid, ok := session.IsSessionExpired(sid)
 	if ok {
 		return false
 	}
-	r.Header.Add(HEADER_FIELD_UNAME, uname)
+	r.Header.Add(HEADER_FIELD_UID, string(uid))
 	return true
 }
 
@@ -30,7 +30,7 @@ func validateUser(r *http.Request, w http.ResponseWriter) bool {
 	if err != nil {
 		return false
 	}
-	uname, err := r.Cookie(HEADER_FIELD_UNAME)
+	uname, err := r.Cookie(HEADER_FIELD_UID)
 	if err != nil {
 		return false
 	}
