@@ -2,5 +2,5 @@ package main
 
 const (
 	VIDEO_DIR       = "./videos/"
-	MAX_UPLOAD_SIZE = 1024 * 1024 * 250 // 50 MB
+	MAX_UPLOAD_SIZE = 1024 * 1024 * 250 // 250 MB
 )

@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/alacine/video_server/api/defs"
 	"github.com/alacine/video_server/api/session"
@@ -10,31 +11,20 @@ import (
 var HEADER_FIELD_SESSION = "X-Session-Id"
 var HEADER_FIELD_UID = "X-User-Id"
 
-// session 校验
-func validateUserSession(r *http.Request) bool {
-	sid := r.Header.Get(HEADER_FIELD_SESSION)
-	if len(sid) == 0 {
-		return false
-	}
-	uid, ok := session.IsSessionExpired(sid)
-	if ok {
-		return false
-	}
-	r.Header.Add(HEADER_FIELD_UID, string(uid))
-	return true
-}
-
 // user 校验
 func validateUser(r *http.Request, w http.ResponseWriter) bool {
 	session_id, err := r.Cookie(HEADER_FIELD_SESSION)
-	if err != nil {
+	if err != nil || len(session_id.Value) == 0 {
+		sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
 		return false
 	}
-	uname, err := r.Cookie(HEADER_FIELD_UID)
-	if err != nil {
+	uidstr, err1 := r.Cookie(HEADER_FIELD_UID)
+	uid, err2 := strconv.Atoi(uidstr.Value)
+	if err1 != nil || err2 != nil {
+		sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
 		return false
 	}
-	if len(uname.Value) == 0 || len(session_id.Value) == 0 {
+	if suid, ok := session.IsSessionExpired(session_id.Value); ok == true || suid != uid {
 		sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
 		return false
 	}

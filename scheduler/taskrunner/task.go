@@ -40,6 +40,7 @@ forloop:
 	for {
 		select {
 		case vid := <-dc:
+			// 这里可能会有重复读写，但是不影响最终的结果
 			go func(id interface{}) {
 				if err := deleteVideo(id.(int)); err != nil {
 					errMap.Store(id, err)

@@ -1,4 +1,8 @@
+set global time_zone = '+8:00';
+set time_zone = '+8:00';
+flush privileges;
 alter database video_server default character set utf8mb4;
+
 drop table if exists comments;
 drop table if exists sessions;
 drop table if exists users;
@@ -40,7 +44,6 @@ create table video_info (
 	author_id int(10),
 	title text,
     description text,
-	display_ctime text,
 	create_time datetime default current_timestamp,
 	primary key (id)
 );

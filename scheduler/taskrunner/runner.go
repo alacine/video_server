@@ -1,9 +1,9 @@
 package taskrunner
 
 type Runner struct {
-	Controller controlChan
+	Controller controlChan // 生产者和消费者交换信息
 	Error      controlChan
-	Data       dataChan
+	Data       dataChan // 具体任务数据
 	dataSize   int
 	longLived  bool
 	Dispatcher fn

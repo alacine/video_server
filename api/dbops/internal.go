@@ -80,7 +80,7 @@ func RetrieveAllSessions() (*sync.Map, error) {
 }
 
 func DeleteSession(sid string) error {
-	stmtDel, err := dbConn.Prepare("delete from sessions where id = ?")
+	stmtDel, err := dbConn.Prepare("delete from sessions where session_id = ?")
 	if err != nil {
 		log.Printf("%s", err)
 		return err

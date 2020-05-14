@@ -55,12 +55,12 @@ type User struct {
 }
 
 type VideoInfo struct {
-	Id           int    `json:"id"`
-	AuthorId     int    `json:"author_id"`
-	AuthorName   string `json:"author_name"`
-	Title        string `json:"title"`
-	DisplayCtime string `json:"display_ctime"`
-	Description  string `json:"description"`
+	Id          int    `json:"id"`
+	AuthorId    int    `json:"author_id"`
+	AuthorName  string `json:"author_name"`
+	Title       string `json:"title"`
+	CreateTime  string `json:"create_time"`
+	Description string `json:"description"`
 }
 
 type Comment struct {

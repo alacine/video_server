@@ -39,7 +39,7 @@ func LoadSessionsFromDB() {
 func GenerateNewSessionId(uid int) string {
 	id, _ := utils.NewUUID()
 	ct := nowInMilli()
-	ttl := ct + 30*60*1000 // Serverside session vaild time: 30 min
+	ttl := ct + 300*60*1000 // Serverside session vaild time: 300 min
 	ss := &defs.SimpleSession{UserId: uid, TTL: ttl}
 	sessionMap.Store(id, ss)
 	dbops.InsertSession(id, ttl, uid)

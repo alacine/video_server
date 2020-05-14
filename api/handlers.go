@@ -42,22 +42,22 @@ func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 }
 
 func GetUserInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	if !validateUser(r, w) {
-		log.Printf("(Error) GetUserInfo: validateUser error")
-		return
-	}
+	//if !validateUser(r, w) {
+	//log.Printf("(Error) GetUserInfo: validateUser error")
+	//return
+	//}
 	uid, err := strconv.Atoi(p.ByName("uid"))
 	if err != nil {
 		log.Printf("(Error) GetUserInfo: %s", err)
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed)
 		return
 	}
-	duname, err := dbops.GetUser(uid)
+	user, err := dbops.GetUser(uid)
 	if err != nil {
 		log.Printf("(Error) GetUserInfo: %s", err)
 		return
 	}
-	ui := &defs.UserInfo{Id: duname.Id, Username: duname.Name}
+	ui := &defs.UserInfo{Id: user.Id, Username: user.Name}
 	if resp, err := json.Marshal(ui); err != nil {
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 	} else {
@@ -78,8 +78,7 @@ func ListUserVideos(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 		sendErrorResponse(w, defs.ErrorDBError) // 500
 		return
 	}
-	vsi := &defs.VideosInfo{Videos: videos}
-	if resp, err := json.Marshal(vsi); err != nil {
+	if resp, err := json.Marshal(videos); err != nil {
 		log.Printf("(Error) ListUserVideos: %s", err)
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 		return
@@ -115,15 +114,15 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 }
 
 func Logout(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	res, _ := ioutil.ReadAll(r.Body)
-	log.Printf("%s", res)
-	ubody := &defs.SimpleSession{}
-	if err := json.Unmarshal(res, ubody); err != nil {
-		log.Printf("(Error) Logout: %s", err)
-		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
+	if !validateUser(r, w) {
+		log.Printf("(Error) Logout: validateUser error")
 		return
 	}
-	session.DeleteExpiredSession(ubody.SessionId)
+	sid, err := r.Cookie(HEADER_FIELD_SESSION)
+	if err != nil {
+		sendErrorResponse(w, defs.ErrorNotAuthUser)
+	}
+	session.DeleteExpiredSession(sid.Value)
 	sendNormalResponse(w, "Logout", http.StatusResetContent) // 205
 }
 
@@ -201,13 +200,13 @@ func DeleteVideo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 	vid, err := strconv.Atoi(p.ByName("vid"))
 	if err != nil {
-		log.Printf("(Error) GetVideoInfo: %s", err)
+		log.Printf("(Error) DeleteVideo: %s", err)
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed)
 		return
 	}
 	err = dbops.DeleteVideoInfo(vid)
 	if err != nil {
-		log.Printf("(Error) DeleteVideoInfo: %s", err)
+		log.Printf("(Error) DeleteVideo: %s", err)
 		sendErrorResponse(w, defs.ErrorDBError)
 		return
 	}

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
@@ -40,10 +41,11 @@ func streamHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	r.Body = http.MaxBytesReader(w, r.Body, MAX_UPLOAD_SIZE)
 	if err := r.ParseMultipartForm(MAX_UPLOAD_SIZE); err != nil {
+		log.Printf("%s", err)
 		sendErrorResponse(
 			w,
 			http.StatusBadRequest,
-			http.StatusText(http.StatusBadRequest)+" File is too big(must <= 50MB)",
+			http.StatusText(http.StatusBadRequest)+" File is too big(must <= 250MB)",
 		)
 		return
 	}
@@ -58,10 +60,22 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 	}
 	data, err := ioutil.ReadAll(file)
 	if err != nil {
-		sendErrorResponse(w, http.StatusInternalServerError, "Internal Error: ")
+		sendErrorResponse(
+			w,
+			http.StatusInternalServerError,
+			http.StatusText(http.StatusInternalServerError),
+		)
 	}
-	fn := p.ByName("vid")
-	err = ioutil.WriteFile(VIDEO_DIR+fn, data, 0666)
+	vid := p.ByName("vid")
+	if _, err := strconv.Atoi(vid); err != nil {
+		sendErrorResponse(
+			w,
+			http.StatusBadRequest,
+			http.StatusText(http.StatusBadRequest)+" Video Id must be integer",
+		)
+		return
+	}
+	err = ioutil.WriteFile(VIDEO_DIR+vid, data, 0666)
 	if err != nil {
 		log.Printf("Write file error: %v", err)
 		sendErrorResponse(
