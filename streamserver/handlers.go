@@ -22,14 +22,14 @@ func streamHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 			w,
 			http.StatusNotFound,
 			http.StatusText(http.StatusNotFound),
-		)
+		) // 404
 	} else if err != nil {
 		log.Printf("Error when try to open file: %v", err)
 		sendErrorResponse(
 			w,
 			http.StatusInternalServerError,
 			http.StatusText(http.StatusInternalServerError),
-		)
+		) // 500
 	} else {
 		// 告诉浏览器使用二进制流解析为 video/mp4 格式
 		w.Header().Set("Content-Type", "video/mp4")
@@ -46,7 +46,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 			w,
 			http.StatusBadRequest,
 			http.StatusText(http.StatusBadRequest)+" File is too big(must <= 250MB)",
-		)
+		) // 400
 		return
 	}
 	file, _, err := r.FormFile("file")
@@ -55,7 +55,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 			w,
 			http.StatusInternalServerError,
 			http.StatusText(http.StatusInternalServerError),
-		)
+		) // 500
 		return
 	}
 	data, err := ioutil.ReadAll(file)
@@ -64,7 +64,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 			w,
 			http.StatusInternalServerError,
 			http.StatusText(http.StatusInternalServerError),
-		)
+		) // 500
 	}
 	vid := p.ByName("vid")
 	if _, err := strconv.Atoi(vid); err != nil {
@@ -72,7 +72,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 			w,
 			http.StatusBadRequest,
 			http.StatusText(http.StatusBadRequest)+" Video Id must be integer",
-		)
+		) // 400
 		return
 	}
 	err = ioutil.WriteFile(VIDEO_DIR+vid, data, 0666)
@@ -82,9 +82,9 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 			w,
 			http.StatusInternalServerError,
 			http.StatusText(http.StatusInternalServerError),
-		)
+		) /// 500
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusCreated) // 201
 	io.WriteString(w, "Upload Successfully")
 }

@@ -8,22 +8,22 @@ main -> middleware -> defs(message, err) -> handlers -> dbops -> response
 
 用户
 
-| operation        | URL                    | Method | Status Code             |
-|------------------|------------------------|--------|-------------------------|
-| 创建(注册)用户   | /api/users             | POST   | 201, 400, 500           |
-| 获取用户基本信息 | /api/users/:uid        | GET    | 200, 400, 401, 403, 500 |
-| 获取用户视频     | /api/users/:uid/videos | Get    | 200, 400, 500           |
-| 用户登录         | /api/sessions          | POST   | 200, 400, 500           |
-| 用户登出         | /api/sessions          | DELETE | 205, 400, 401, 403, 500 |
+| operation        | URL                    | Method | Status Code        |
+|------------------|------------------------|--------|--------------------|
+| 创建(注册)用户   | /api/users             | POST   | 201, 400, 500      |
+| 获取用户基本信息 | /api/users/:uid        | GET    | 200, 400, 500      |
+| 获取用户视频     | /api/users/:uid/videos | Get    | 200, 400, 500      |
+| 用户登录         | /api/sessions          | POST   | 200, 400, 401, 500 |
+| 用户登出         | /api/sessions          | DELETE | 205, 401, 500      |
 
 资源(视频)
 
-| operation    | URL              | Method | Status Code             |
-|--------------|------------------|--------|-------------------------|
-| 获取视频列表 | /api/videos      | Get    | 200, 400, 500           |
-| 获取视频信息 | /api/videos/:vid | Get    | 200, 400, 500           |
-| 添加视频     | /api/videos/:vid | POST   | 201, 400, 500           |
-| 删除视频     | /api/videos/:vid | DELETE | 204, 400, 401, 403, 500 |
+| operation    | URL              | Method | Status Code         |
+|--------------|------------------|--------|---------------------|
+| 获取视频列表 | /api/videos      | Get    | 200, 400, 500       |
+| 获取视频信息 | /api/videos/:vid | Get    | 200, 400, 500       |
+| 添加视频     | /api/videos/     | POST   | 201, 400, 401, 500  |
+| 删除视频     | /api/videos/:vid | DELETE | 204, 400, 401 , 500 |
 
 评论
 
@@ -46,7 +46,7 @@ handler -> validation{1. request, 2. user} -> business logic -> response
 | operation    | URL                 | Method | Status Code   |
 |--------------|---------------------|--------|---------------|
 | stream video | /stream/videos/:vid | Get    | 200, 404, 500 |
-| upload video | /stream/videos/:vid | POST   | 200, 400, 500 |
+| upload video | /stream/videos/:vid | POST   | 201, 400, 500 |
 
 bucket token
 

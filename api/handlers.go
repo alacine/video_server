@@ -49,7 +49,7 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	uid, err := strconv.Atoi(p.ByName("uid"))
 	if err != nil {
 		log.Printf("(Error) GetUserInfo: %s", err)
-		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed)
+		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
 	}
 	user, err := dbops.GetUser(uid)
@@ -69,7 +69,7 @@ func ListUserVideos(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 	uid, err := strconv.Atoi(p.ByName("uid"))
 	if err != nil {
 		log.Printf("(Error) ListUserVideos: %s", err)
-		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed)
+		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
 	}
 	videos, err := dbops.ListUserVideos(uid, 0, utils.GetCurrentTimestampSec())
@@ -109,7 +109,7 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 	} else {
 		log.Printf("Login: user %s login succeed", ubody.Username)
-		sendNormalResponse(w, string(resp), http.StatusOK)
+		sendNormalResponse(w, string(resp), http.StatusOK) /// 200
 	}
 }
 
@@ -120,7 +120,7 @@ func Logout(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 	sid, err := r.Cookie(HEADER_FIELD_SESSION)
 	if err != nil {
-		sendErrorResponse(w, defs.ErrorNotAuthUser)
+		sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
 	}
 	session.DeleteExpiredSession(sid.Value)
 	sendNormalResponse(w, "Logout", http.StatusResetContent) // 205
@@ -144,7 +144,7 @@ func GetVideoInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	vid, err := strconv.Atoi(p.ByName("vid"))
 	if err != nil {
 		log.Printf("(Error) GetVideoInfo: %s", err)
-		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed)
+		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
 	}
 	video, err := dbops.GetVideoInfo(vid)
@@ -201,13 +201,13 @@ func DeleteVideo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	vid, err := strconv.Atoi(p.ByName("vid"))
 	if err != nil {
 		log.Printf("(Error) DeleteVideo: %s", err)
-		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed)
+		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
 	}
 	err = dbops.DeleteVideoInfo(vid)
 	if err != nil {
 		log.Printf("(Error) DeleteVideo: %s", err)
-		sendErrorResponse(w, defs.ErrorDBError)
+		sendErrorResponse(w, defs.ErrorDBError) // 500
 		return
 	}
 	go utils.SendDeleteVideoRequest(vid)
@@ -244,7 +244,7 @@ func ListComments(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	vid, err := strconv.Atoi(p.ByName("vid"))
 	if err != nil {
 		log.Printf("(Error) GetVideoInfo: %s", err)
-		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed)
+		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) /// 400
 		return
 	}
 	comments, err := dbops.ListComments(vid, 0, utils.GetCurrentTimestampSec())
@@ -259,6 +259,6 @@ func ListComments(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 		return
 	} else {
-		sendNormalResponse(w, string(resp), http.StatusOK)
+		sendNormalResponse(w, string(resp), http.StatusOK) /// 200
 	}
 }
