@@ -1,3 +1,6 @@
+-- create database video_server;
+-- create user 'video'@'%' identified by 'videoyes';
+-- grant all privileges on video_server.* to 'video'@'%' identified by 'videoyes' with grant option;
 set global time_zone = '+8:00';
 set time_zone = '+8:00';
 flush privileges;
