@@ -2,8 +2,8 @@
 # 自动化部署
 set -e -o pipefail
 
-source_code_location="~/go/src/video_server/"
-project_location="~/video_server/"
+source_code_location=~/go/src/video_server/
+project_location=~/video_server/
 deploy_log_file=${project_location}"deploy_log.txt"
 api_log_file=${project_location}"api_log.txt"
 streamserver_log_file=${project_location}"streamserver_log.txt"
@@ -19,8 +19,8 @@ kill -9 $(pgrep scheduler)
 cd $source_code_location
 echo "git pull..." >> $deploy_log_file
 git pull
-echo "copy server to project location..."
-cp ${source_code_location}"config.json" ${project_location}"config.json"
+echo "copy server to project location..." >> $deploy_log_file
+cp ${source_code_location}"conf.json" ${project_location}"conf.json"
 cp ${source_code_location}"api/api" ${project_location}"api"
 cp ${source_code_location}"streamserver/streamserver" ${project_location}"streamserver"
 cp ${source_code_location}"scheduler/scheduler" ${project_location}"scheduler"
