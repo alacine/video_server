@@ -13,7 +13,7 @@ type middleWareHandler struct {
 func (m middleWareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// check session
 	//validateUserSession(r)
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, DELETE")
 	w.Header().Add("Access-Control-Allow-Headers", "Content-Type, X-Session-Id, X-User-Id, Cookie")
 	w.Header().Set("Content-Type", "application/json")
