@@ -9,19 +9,24 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func AddUserCredential(name string, pwd string) error {
+func AddUserCredential(name string, pwd string) (int, error) {
 	stmtIns, err := dbConn.Prepare("INSERT INTO users (name, pwd) VALUES (?, ?)")
 	defer stmtIns.Close()
 	if err != nil {
 		log.Printf("(ERROR) AddUserCredential sql prepare error: %s", err)
-		return err
+		return -1, err
 	}
-	_, err = stmtIns.Exec(name, pwd)
+	result, err := stmtIns.Exec(name, pwd)
 	if err != nil {
 		log.Printf("(ERROR) AddUserCredential sql exec error: %s", err)
-		return err
+		return -1, err
 	}
-	return nil
+	vid, err := result.LastInsertId()
+	if err != nil {
+		log.Printf("(ERROR) AddUserCredential sql exec error: %s", err)
+		return -1, err
+	}
+	return int(vid), nil
 }
 
 func GetUserCredential(name string) (int, string, error) {
@@ -112,13 +117,9 @@ func ListVideos() ([]*defs.VideoInfo, error) {
 }
 
 func AddNewVideo(aid int, title string, desp string) (*defs.VideoInfo, error) {
-	// create uuid
-	//vid, err := utils.NewUUID()
 	if err != nil {
 		return nil, err
 	}
-	//ctime := time.Now()
-	//ctime := t.Format("Jan 02 2006, 15:04:05") //M D y, HH:MM:SS
 	stmtIns, err := dbConn.Prepare(`
 		INSERT INTO video_info (author_id, title, description) 
 		VALUES(?, ?, ?)

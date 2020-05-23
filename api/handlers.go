@@ -23,22 +23,23 @@ func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		log.Printf("(Error) CreateUser: %s", err)
 		return
 	}
-
-	if err := dbops.AddUserCredential(ubody.Username, ubody.Pwd); err != nil {
+	uid, err := dbops.AddUserCredential(ubody.Username, ubody.Pwd)
+	if err != nil {
 		sendErrorResponse(w, defs.ErrorDBError) // 500
 		log.Printf("(Error) CreateUser: %s", err)
 		return
 	}
-
-	sendNormalResponse(w, "", http.StatusCreated) // 201
-	//id := session.GenerateNewSessionId(ubody.Username)
-	//su := &defs.SignedUp{Success: true, SessionId: id}
-
-	//if resp, err := json.Marshal(su); err != nil {
-	//sendErrorResponse(w, defs.ErrorInternalFaults) // 500
-	//} else {
-	//sendNormalResponse(w, string(resp), http.StatusCreated) // 201
-	//}
+	new_user := &defs.UserInfo{
+		Username: ubody.Username,
+		Id:       uid,
+	}
+	resp, err := json.Marshal(new_user)
+	if err != nil {
+		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
+		log.Printf("(Error) CreateUser: %s", err)
+		return
+	}
+	sendNormalResponse(w, string(resp), http.StatusCreated) // 201
 }
 
 func GetUserInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
