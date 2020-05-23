@@ -1,3 +1,5 @@
+// 限制连接数量
+// https://zhuanlan.zhihu.com/p/64124008
 package main
 
 import "log"
