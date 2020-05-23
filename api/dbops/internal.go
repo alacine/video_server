@@ -65,7 +65,7 @@ func RetrieveAllSessions() (*sync.Map, error) {
 		var id string
 		var ttlstr string
 		var uid int
-		if err := rows.Scan(&id, ttlstr, uid); err != nil {
+		if err := rows.Scan(&id, &ttlstr, &uid); err != nil {
 			log.Printf("retrieve sessions error: %s", err)
 		}
 		if ttl, err := strconv.ParseInt(ttlstr, 10, 64); err == nil {
