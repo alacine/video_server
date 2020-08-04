@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"alacine/config"
 	"crypto/rand"
 	"fmt"
 	"io"
@@ -9,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/alacine/video_server/config"
 )
 
 func NewUUID() (string, error) {
