@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alacine/video_server/config"
+	"github.com/alacine/video_server/api/config"
 )
 
 func NewUUID() (string, error) {
