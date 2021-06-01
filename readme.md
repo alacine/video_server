@@ -8,6 +8,8 @@
 
 先启动`scheduler`, `streamserver`, 最后启动`api`
 
+另外自动化部署`deployserver`暂时不可用
+
 ### API 设计
 
 main -> middleware -> defs(message, err) -> handlers -> dbops -> response

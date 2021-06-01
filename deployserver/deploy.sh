@@ -20,7 +20,10 @@ cd $source_code_location
 echo "git pull..." >> $deploy_log_file
 git pull
 echo "copy server to project location..." >> $deploy_log_file
-cp ${source_code_location}"conf.json" ${project_location}"conf.json"
+if [ ! -d ${project_location}"config" ]; then
+    mkdir ${project_location}"config"
+fi
+cp ${source_code_location}"conf.json" ${project_location}"/config/conf.json"
 cp ${source_code_location}"api/api" ${project_location}"api"
 cp ${source_code_location}"streamserver/streamserver" ${project_location}"streamserver"
 cp ${source_code_location}"scheduler/scheduler" ${project_location}"scheduler"
