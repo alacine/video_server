@@ -2,6 +2,8 @@
 
 ### 运行启动说明
 
+`initdb.sql` 是原来的开发时用到的脚本，创建数据库还是使用下面的导出的比较好
+
 运行 sql 脚本 `exportsql/video_server.sql`, 这会创建相关的数据库和代码中用到的连接用户
 
 分别在`api`, `scheduler`, `streamserver`目录下执行`go build`
