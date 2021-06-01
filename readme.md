@@ -1,5 +1,13 @@
 ## Go 视频网站项目
 
+### 运行启动说明
+
+运行 sql 脚本 `exportsql/video_server.sql`, 这会创建相关的数据库和代码中用到的连接用户
+
+分别在`api`, `scheduler`, `streamserver`目录下执行`go build`
+
+先启动`scheduler`, `streamserver`, 最后启动`api`
+
 ### API 设计
 
 main -> middleware -> defs(message, err) -> handlers -> dbops -> response

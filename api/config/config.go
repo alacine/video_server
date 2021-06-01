@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"path"
 )
 
 type Configuration struct {
@@ -14,7 +15,8 @@ type Configuration struct {
 var configuration *Configuration
 
 func init() {
-	file, _ := os.Open("./conf.json")
+	configPath := path.Join("config", "conf.json")
+	file, _ := os.Open(configPath)
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	configuration = &Configuration{}

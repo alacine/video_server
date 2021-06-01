@@ -156,3 +156,20 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2020-06-09 14:53:58
+
+CREATE USER 'video'@'%';
+ALTER USER 'video'@'%'
+IDENTIFIED BY 'videoyes' ;
+GRANT Alter ON video_server.* TO 'video'@'%';
+GRANT Create ON video_server.* TO 'video'@'%';
+GRANT Create view ON video_server.* TO 'video'@'%';
+GRANT Delete ON video_server.* TO 'video'@'%';
+GRANT Drop ON video_server.* TO 'video'@'%';
+GRANT Grant option ON video_server.* TO 'video'@'%';
+GRANT Index ON video_server.* TO 'video'@'%';
+GRANT Insert ON video_server.* TO 'video'@'%';
+GRANT References ON video_server.* TO 'video'@'%';
+GRANT Select ON video_server.* TO 'video'@'%';
+GRANT Show view ON video_server.* TO 'video'@'%';
+GRANT Trigger ON video_server.* TO 'video'@'%';
+GRANT Update ON video_server.* TO 'video'@'%';
