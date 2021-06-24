@@ -1,23 +1,21 @@
-API = api/api
-SCHEDULER = scheduler/scheduler
-STREAMSERVER = streamserver/streamserver
-DEPLOYSERVER = deployserver/deployserver
+.DELETE_ON_ERROR:
 
-all: $(API) $(SCHEDULER) $(STREAMSERVER) $(DEPLOYSERVER)
+ALL_SERVICES = api scheduler streamserver deployserver
 
-$(API): api/*.go
-	cd api && go build
+.PHONY: all clean status startdb run-deamo stop $(ALL_SERVICES)
 
-$(SCHEDULER): scheduler/*.go
-	cd scheduler && go build
+all: $(ALL_SERVICES)
 
-$(STREAMSERVER): streamserver/*.go
-	cd streamserver && go build
+$(ALL_SERVICES):
+	$(MAKE) -C $@
 
-$(DEPLOYSERVER): deployserver/*.go
-	cd deployserver && go build
+status:
+	ps aux | grep -E 'api|streamserver|scheduler|deployserver' | grep -v grep
 
-run:
+startdb:
+	docker start mysql-test
+
+run-deamon: | startdb $(ALL_SERVICES)
 	cd streamserver && nohup ./streamserver &
 	cd scheduler && nohup ./scheduler &
 	cd api && nohup ./api &
@@ -25,6 +23,12 @@ run:
 stop:
 	./admin.sh
 
-clean:
-	find . -type f ! -regex '^\./\.git/.*' ! -regex '.+\..+' ! -name Makefile -delete
+stopall: stop
+	docker stop mysql-test
+
+clean: stop
+	@for dir in $(ALL_SERVICES); do \
+		$(MAKE) -C $$dir $@; \
+	done
+	@#find . -type f ! -regex '^\./\.git/.*' ! -regex '.+\..+' ! -name Makefile -delete
 	find . -name nohup.out -delete

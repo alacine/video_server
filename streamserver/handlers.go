@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -15,7 +15,7 @@ import (
 
 func streamHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	vid := p.ByName("vid")
-	vl := path.Join(VIDEO_DIR, vid)
+	vl := filepath.Join(VIDEO_DIR, vid)
 	video, err := os.Open(vl)
 	defer video.Close()
 	if os.IsNotExist(err) {
@@ -76,7 +76,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 		) // 400
 		return
 	}
-	err = ioutil.WriteFile(path.Join(VIDEO_DIR, vid), data, 0666)
+	err = ioutil.WriteFile(filepath.Join(VIDEO_DIR, vid), data, 0666)
 	if err != nil {
 		log.Printf("Write file error: %v", err)
 		sendErrorResponse(
