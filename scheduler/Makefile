@@ -1,4 +1,4 @@
-.PHONY: all run clean
+.PHONY: all run clean stop restore
 .DELETE_ON_ERROR:
 
 rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
@@ -12,5 +12,10 @@ $(target): $(call rwildcard,./,*.go)
 run: $(target)
 	./$(target)
 
+stop:
+	pkill -u $$USER $(target)
+
 clean:
-	rm -f $(target)
+	go clean -i -x
+
+restore: clean

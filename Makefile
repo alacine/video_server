@@ -10,7 +10,7 @@ $(ALL_SERVICES):
 	$(MAKE) -C $@
 
 status:
-	ps aux | grep -E 'api|streamserver|scheduler|deployserver' | grep -v grep
+	pgrep -au $$USER "api|streamserver|scheduler|deployserver"
 
 startdb:
 	docker start mysql-test
@@ -21,12 +21,12 @@ run-deamon: | startdb $(ALL_SERVICES)
 	cd api && nohup ./api &
 
 stop:
-	./admin.sh
+	pkill -u $$USER "api|streamserver|scheduler|deployserver"
 
 stopall: stop
 	docker stop mysql-test
 
-clean: stop
+clean restore:
 	@for dir in $(ALL_SERVICES); do \
 		$(MAKE) -C $$dir $@; \
 	done
