@@ -12,5 +12,5 @@ RUN mkdir /app
 ENV PS1='\n[\u@\h \w]\n$ '
 
 WORKDIR $APP_DIR
-COPY --from=video_server_build ${GOPATH}/bin/deployserver ${GOPATH}/bin/config.json .
+COPY --from=video_server_build ${GOPATH}/bin/deployserver .
 CMD ["./deployserver"]

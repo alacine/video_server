@@ -36,7 +36,6 @@ clean:
 
 install: 
 	go install
-	cp config/conf.json $$GOPATH/bin
 
 uninstall:
 	go clean -i -x
