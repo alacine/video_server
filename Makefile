@@ -1,4 +1,4 @@
-.DELETE_ON_ERROR:
+#.DELETE_ON_ERROR:
 
 ALL_SERVICES = api scheduler streamserver deployserver
 
@@ -20,8 +20,18 @@ run-deamon: | startdb $(ALL_SERVICES)
 	cd scheduler && nohup ./scheduler &
 	cd api && nohup ./api &
 
-stop:
-	pkill -u $$USER "api|streamserver|scheduler|deployserver"
+build-in-docker:
+	docker build . -t video_server/build
+
+install stop:
+	@for dir in $(ALL_SERVICES); do \
+		$(MAKE) -C $$dir $@; \
+	done
+
+docker-%:
+	@for dir in $(ALL_SERVICES); do \
+		$(MAKE) -C $$dir $@; \
+	done
 
 stopall: stop
 	docker stop mysql-test
@@ -32,3 +42,4 @@ clean restore:
 	done
 	@#find . -type f ! -regex '^\./\.git/.*' ! -regex '.+\..+' ! -name Makefile -delete
 	find . -name nohup.out -delete
+	docker rmi video_server/build
