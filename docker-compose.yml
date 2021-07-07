@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:latest
+    volumes:
+      - ./local-cache/db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    networks:
+      video_server:
+        ipv4_address: 172.50.0.2
+
+  api:
+    depends_on:
+      - db
+    build:
+      context: ./api
+    networks:
+      video_server: 172.50.0.3
+
+  streamserver:
+    depends_on:
+      - db
+    build:
+      context: ./streamserver
+    networks:
+      video_server:
+        ipv4_address: 172.50.0.4
+
+  scheduler:
+    depends_on:
+      - db
+    build:
+      context: ./scheduler
+    networks:
+      video_server:
+        ipv4_address: 172.50.0.5
+
+networks:
+  video_server:
+    driver: bridge
+    name: video_server
+    config:
+      - subnet: 172.50.0.0/16
+        ip_range: 172.50.0.0/24
+        gateway: 172.50.0.1

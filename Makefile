@@ -21,7 +21,7 @@ run-deamon: | startdb $(ALL_SERVICES)
 	cd api && nohup ./api &
 
 build-in-docker:
-	docker build . -t video_server/build
+	docker build . -t video_server_build
 
 install stop:
 	@for dir in $(ALL_SERVICES); do \

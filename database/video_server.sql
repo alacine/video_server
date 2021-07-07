@@ -1,8 +1,8 @@
--- MariaDB dump 10.17  Distrib 10.4.13-MariaDB, for Linux (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.11-MariaDB, for Linux (x86_64)
 --
--- Host: 127.0.0.1    Database: video_server
+-- Host: 127.0.0.1    Database: 
 -- ------------------------------------------------------
--- Server version	5.7.29
+-- Server version	8.0.23
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -19,7 +19,9 @@
 -- Current Database: `video_server`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `video_server` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+/*!40000 DROP DATABASE IF EXISTS `video_server`*/;
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `video_server` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
 USE `video_server`;
 
@@ -29,15 +31,15 @@ USE `video_server`;
 
 DROP TABLE IF EXISTS `comments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `comments` (
   `id` varchar(64) NOT NULL,
   `video_id` varchar(64) DEFAULT NULL,
-  `author_id` int(10) DEFAULT NULL,
+  `author_id` int DEFAULT NULL,
   `content` text,
   `post_time` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -55,13 +57,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `sessions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sessions` (
   `session_id` tinytext NOT NULL,
   `TTL` tinytext,
-  `uid` int(11) DEFAULT NULL,
+  `uid` int DEFAULT NULL,
   PRIMARY KEY (`session_id`(60))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -79,14 +81,14 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(40) DEFAULT NULL,
   `pwd` text NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -104,11 +106,11 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `video_del_rec`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `video_del_rec` (
-  `video_id` int(10) unsigned NOT NULL,
+  `video_id` int unsigned NOT NULL,
   PRIMARY KEY (`video_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -126,15 +128,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `video_info`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `video_info` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `author_id` int(10) DEFAULT NULL,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `author_id` int DEFAULT NULL,
   `title` text,
   `description` text,
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -155,11 +157,10 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-06-09 14:53:58
+-- Dump completed on 2021-07-07 14:11:04
 
-CREATE USER 'video'@'%';
-ALTER USER 'video'@'%'
-IDENTIFIED BY 'videoyes' ;
+CREATE USER IF NOT EXISTS 'video'@'%';
+ALTER USER 'video'@'%' IDENTIFIED BY 'videoyes' ;
 GRANT Alter ON video_server.* TO 'video'@'%';
 GRANT Create ON video_server.* TO 'video'@'%';
 GRANT Create view ON video_server.* TO 'video'@'%';

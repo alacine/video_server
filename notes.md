@@ -1,3 +1,4 @@
+
 ### 前后端解耦
 
 优势
@@ -28,3 +29,8 @@
 * 以 URL(统一资源定位符号)风格设计 API
 * 通过不同的 METHOD(GET, POST, PUT, DELETE)来区分资源的 CRUD
 * 返回码(Status Code)符合 HTTP 资源描述的规定
+
+
+### MYSQL
+
+mysqldump --single-transaction --add-drop-database -h 127.0.0.1 -u video --all-databases -p > export.sql

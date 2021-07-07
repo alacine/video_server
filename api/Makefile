@@ -19,7 +19,7 @@ docker-run:
 	docker run -d --name local-$(target) video_server/$(target)
 
 docker-run-once:
-	docker run --rm -it video_server/$(target) bash
+	docker run --rm -it video_server/$(target) sh
 
 docker-start:
 	docker start video_server/local-$(target)
