@@ -1,6 +1,6 @@
 #.DELETE_ON_ERROR:
 
-ALL_SERVICES = api scheduler streamserver deployserver
+ALL_SERVICES = api scheduler streamserver
 
 .PHONY: all clean status startdb run-deamo stop $(ALL_SERVICES)
 
@@ -21,14 +21,10 @@ run-deamon: | startdb $(ALL_SERVICES)
 	cd api && nohup ./api &
 
 build-in-docker:
+	mkdir -pv local-cache/db local-cache/api local-cache/scheduler local-cache/streamserver
 	docker build . -t video_server_build
 
 install stop:
-	@for dir in $(ALL_SERVICES); do \
-		$(MAKE) -C $$dir $@; \
-	done
-
-docker-%:
 	@for dir in $(ALL_SERVICES); do \
 		$(MAKE) -C $$dir $@; \
 	done
