@@ -2,7 +2,9 @@ version: "3.9"
 
 services:
   db:
-    image: mysql:latest
+    #image: mysql:latest
+    build:
+      context: ./database
     volumes:
       - ./database/video_server.sql:/docker-entrypoint-initdb.d/video_server.sql
       - ./local-cache/db:/var/lib/mysql
@@ -11,10 +13,16 @@ services:
     networks:
       video_server:
         ipv4_address: 172.50.0.2
+    healthcheck:
+      test: ["CMD", "nc", "-z", "-v", "localhost", "3306"]
+      interval: 10s
+      retries: 3
+      start_period: 3s
 
   api:
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     build:
       context: ./api
     networks:
@@ -22,8 +30,13 @@ services:
         ipv4_address: 172.50.0.3
 
   streamserver:
+    # 下面这个 volumes 加上会使上传功能失效，原因看下面的链接
+    # https://github.com/alacine/notes/blob/master/docker.md#docker-compose-%E4%B8%AD%E6%8C%87%E5%AE%9A-volumes-%E5%90%8E%E5%AE%B9%E5%99%A8%E5%86%85%E9%83%A8%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%99%E5%85%A5%E6%93%8D%E4%BD%9C%E5%87%BA%E7%8E%B0permission-denied
+    #volumes:
+    #- ./local-cache/streamserver/videos:/app/videos
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     build:
       context: ./streamserver
     networks:
@@ -32,7 +45,8 @@ services:
 
   scheduler:
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     build:
       context: ./scheduler
     networks:

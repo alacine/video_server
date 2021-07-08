@@ -11,5 +11,5 @@ ENV GOPATH /go
 ENV PS1='\n[\u@\h \w]\n$ '
 
 WORKDIR $APP_DIR
-COPY --from=video_server/build ${GOPATH}/bin/scheduler .
+COPY --from=video_server_build ${GOPATH}/bin/scheduler .
 CMD ["./scheduler"]

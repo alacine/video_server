@@ -42,4 +42,4 @@ clean restore:
 	done
 	@#find . -type f ! -regex '^\./\.git/.*' ! -regex '.+\..+' ! -name Makefile -delete
 	find . -name nohup.out -delete
-	docker rmi video_server/build
+	docker rmi video_server_build

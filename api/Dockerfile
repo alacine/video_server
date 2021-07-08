@@ -12,6 +12,6 @@ RUN mkdir -pv /app/config
 ENV PS1='\n[\u@\h \w]\n$ '
 
 WORKDIR $APP_DIR
-COPY --from=video_server/build ${GOPATH}/bin/api .
-COPY --from=video_server/build ${GOPATH}/bin/conf.json config/
+COPY --from=video_server_build ${GOPATH}/bin/api .
+COPY --from=video_server_build ${GOPATH}/bin/conf.json config/
 CMD ["./api"]
