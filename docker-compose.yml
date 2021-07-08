@@ -4,6 +4,7 @@ services:
   db:
     image: mysql:latest
     volumes:
+      - ./database/video_server.sql:/docker-entrypoint-initdb.d/video_server.sql
       - ./local-cache/db:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: 123456
@@ -17,7 +18,8 @@ services:
     build:
       context: ./api
     networks:
-      video_server: 172.50.0.3
+      video_server:
+        ipv4_address: 172.50.0.3
 
   streamserver:
     depends_on:
@@ -39,9 +41,10 @@ services:
 
 networks:
   video_server:
-    driver: bridge
     name: video_server
-    config:
-      - subnet: 172.50.0.0/16
-        ip_range: 172.50.0.0/24
-        gateway: 172.50.0.1
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.50.0.0/16
+          ip_range: 172.50.0.0/24
+          gateway: 172.50.0.1
