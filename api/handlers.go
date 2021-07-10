@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -15,10 +15,9 @@ import (
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	//io.WriteString(w, "Create User Handler\n")
-	res, _ := ioutil.ReadAll(r.Body)
 	ubody := &defs.UserCredential{}
-	if err := json.Unmarshal(res, ubody); err != nil {
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(ubody); err != nil && err != io.EOF {
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		log.Printf("(Error) CreateUser: %s", err)
 		return
@@ -89,14 +88,14 @@ func ListUserVideos(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }
 
 func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	res, _ := ioutil.ReadAll(r.Body)
-	log.Printf("%s", res)
 	ubody := &defs.UserCredential{}
-	if err := json.Unmarshal(res, ubody); err != nil {
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(ubody); err != nil {
 		log.Printf("(Error) Login: %s", err)
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
 	}
+	log.Printf("%#v", ubody)
 	uid, pwd, err := dbops.GetUserCredential(ubody.Username)
 	if err != nil || len(pwd) == 0 || pwd != ubody.Pwd {
 		log.Printf("(Error) Login: user %s login failed", ubody.Username)
@@ -166,9 +165,9 @@ func AddNewVideo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 	// https://stackoverflow.com/questions/51460418/http-request-r-formvalue-returns-nothing-map
-	res, _ := ioutil.ReadAll(r.Body)
 	nvbody := &defs.NewVideo{}
-	if err := json.Unmarshal([]byte(res), nvbody); err != nil {
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(nvbody); err != nil {
 		log.Printf("(Error) AddNewVideo: %s", err)
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 		return
@@ -220,9 +219,9 @@ func PostComment(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		log.Printf("(Error) PostComment: validateUser error")
 		return
 	}
-	res, _ := ioutil.ReadAll(r.Body)
 	cbody := &defs.NewComment{}
-	if err := json.Unmarshal(res, cbody); err != nil {
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(cbody); err != nil {
 		log.Printf("(Error) PostComment: %s", err)
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 		return
