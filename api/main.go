@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/alacine/video_server/api/session"
@@ -57,5 +58,5 @@ func main() {
 	Prepare()
 	r := RegisterHandlers()
 	mh := NewMiddleWareHandler(r)
-	http.ListenAndServe(":8000", mh)
+	log.Fatalln(http.ListenAndServe(":8000", mh))
 }

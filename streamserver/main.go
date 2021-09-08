@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -42,5 +43,5 @@ func RegisterHandlers() *httprouter.Router {
 func main() {
 	r := RegisterHandlers()
 	mh := NewMiddleWareHandler(r, 2)
-	http.ListenAndServe(":9000", mh)
+	log.Fatalln(http.ListenAndServe(":9000", mh))
 }

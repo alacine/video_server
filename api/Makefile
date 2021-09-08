@@ -1,4 +1,4 @@
-.PHONY: all run gomod clean stop restore docker-%
+.PHONY: all run gomod clean stop restore
 #.DELETE_ON_ERROR:
 
 rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))

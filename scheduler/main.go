@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/alacine/video_server/scheduler/taskrunner"
@@ -16,5 +17,5 @@ func RegisterHandlers() *httprouter.Router {
 func main() {
 	go taskrunner.Start()
 	r := RegisterHandlers()
-	http.ListenAndServe(":9001", r)
+	log.Fatalln(http.ListenAndServe(":9001", r))
 }

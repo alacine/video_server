@@ -2,7 +2,7 @@
 
 ALL_SERVICES = api scheduler streamserver
 
-.PHONY: all clean status startdb run-deamo stop $(ALL_SERVICES)
+.PHONY: all clean status startdb run-deamo stop $(ALL_SERVICES) help
 
 all: $(ALL_SERVICES)
 
@@ -13,9 +13,9 @@ status:
 	pgrep -au $$USER "api|streamserver|scheduler|deployserver"
 
 startdb:
-	docker-compose start -d db
+	docker-compose start db
 
-run-deamon: | startdb $(ALL_SERVICES)
+run-daemon: | startdb $(ALL_SERVICES)
 	cd streamserver && nohup ./streamserver &
 	cd scheduler && nohup ./scheduler &
 	cd api && nohup ./api &
@@ -48,3 +48,18 @@ restore: clean
 	done
 	docker-compose down -v
 	sudo rm -rf ./local-cache
+
+help:
+	@echo "(none):          build all submodules"
+	@echo "startdb:         start database in local docker"
+	@echo "run-deamon:      start submodules in local environment"
+	@echo "build-in-docker: build two docker images:"
+	@echo "                     1. video_server_build: contains all built submodules binary"
+	@echo "                     2. video_server_base: base image for submodules' image"
+	@echo "install:         install submodules in GOPATH/bin"
+	@echo "stop:            kill all local submodules' process"
+	@echo "stopall:         do 'stop' and stop database docker"
+	@echo "clean:           delete all binarys, nohup logs and images: video_server_base, video_server_build"
+	@echo "restore:         do 'clean' and database volume"
+	@echo ""
+	@echo "If you have docker-compose installed, you can try docker-compose as you like."
