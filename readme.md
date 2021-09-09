@@ -1,81 +1,74 @@
 ## Go 视频网站项目
 
+[![build](https://github.com/alacine/video_server/actions/workflows/build.yml/badge.svg)](https://github.com/alacine/video_server/actions/workflows/build.yml)
+
+在线视频网站项目的后端，前端在 [video_server_vue](https://github.com/alacine/video_server_vue)
+
+分了 api、stream、scheduler 三个服务。项目主要用来熟悉 Go 以及学习 Makefile、
+Docker、docker-compose、kubernetes、github actions 的基本使用
+
 ### 运行启动说明
 
-`initdb.sql` 是原来的开发时用到的脚本，创建数据库还是使用下面的导出的比较好
+**需要有 docker 和 docker-compsoe**
 
-运行 sql 脚本 `exportsql/video_server.sql`, 这会创建相关的数据库和代码中用到的连接用户
+无论那种运行方式都是把数据库放在了 docker 里面
 
-分别在`api`, `scheduler`, `streamserver`目录下执行`go build`
+```bash
+# 查看帮助信息
+make help
+```
 
-先启动`scheduler`, `streamserver`, 最后启动`api`
+* 本地环境
 
-另外自动化部署`deployserver`暂时不可用
+```bash
+# 构建
+make
 
-### API 设计
+# 启动数据库
+make startdb
+# 启动所有，用 nohup 挂在后台
+make run-deamon
 
-main -> middleware -> defs(message, err) -> handlers -> dbops -> response
+# 状态
+make status
 
-业务量较大的部分是 dbops 部分
+# 停止服务
+make stop-deamon
 
-用户
+# 停止服务且停止数据库
+make stopall
+```
 
-| operation        | URL                    | Method | Status Code        |
-|------------------|------------------------|--------|--------------------|
-| 创建(注册)用户   | /api/users             | POST   | 201, 400, 500      |
-| 获取用户基本信息 | /api/users/:uid        | GET    | 200, 400, 500      |
-| 获取用户视频     | /api/users/:uid/videos | Get    | 200, 400, 500      |
-| 用户登录         | /api/sessions          | POST   | 200, 400, 401, 500 |
-| 用户登出         | /api/sessions          | DELETE | 205, 401, 500      |
+* 本地 docker 环境
 
-资源(视频)
+```bash
+# 构建 docker 基础镜像，以及创建容器中会挂载出来的目录 local-cache
+make build-in-docker
 
-| operation    | URL              | Method | Status Code         |
-|--------------|------------------|--------|---------------------|
-| 获取视频列表 | /api/videos      | Get    | 200, 400, 500       |
-| 获取视频信息 | /api/videos/:vid | Get    | 200, 400, 500       |
-| 添加视频     | /api/videos/     | POST   | 201, 400, 401, 500  |
-| 删除视频     | /api/videos/:vid | DELETE | 204, 400, 401 , 500 |
+# 启动、停止
+docker-compose up|down
+```
 
-评论
+* 清理操作
 
-| operation    | URL                       | Method | Status Code   |
-|--------------|---------------------------|--------|---------------|
-| 获取视频评论 | /api/videos/:vid/comments | Get    | 200, 400, 500 |
-| 发布评论     | /api/videos/:vid/comments | POST   | 201, 400, 500 |
+```bash
+# 删除除了 loacl-cache 目录外所有二进制文件、nohup 产生的日志、基础镜像
+make clean
 
-handler -> validation{1. request, 2. user} -> business logic -> response
-1. data model
-2. error handling
+# clean，并且删除挂载卷、local-cache/
+make restore
+```
 
+另外自动化部署服务`deployserver`暂不需要
 
-### Streaming
+### API
 
-* 静态视频, 非 RTMP(Real-Time Messaging Protocol)
-* 独立的服务, 可独立部署
-* 统一的 api 格式
+对外业务接口服务
 
-| operation    | URL                 | Method | Status Code   |
-|--------------|---------------------|--------|---------------|
-| stream video | /stream/videos/:vid | Get    | 200, 404, 500 |
-| upload video | /stream/videos/:vid | POST   | 201, 400, 500 |
+### STREAM
 
-bucket token
+静态视频服务，在线观看、上传
 
-bucket 中放置指定数量的 token, 当接受到 request 请求时, 为其分配一个 token,
-当发送 response 后, 释放这个 token
+### SCHEDULER
 
-
-### Scheduler
-
-1. RESTful 的 http server
-2. Timer(计时器)
-3. 生产者/消费者模型下的 task runner
-
-* api -> video_id -> mysql
-* dispatcher -> mysql: video_id -> datachannel
-* executor -> datachannel video_id -> delete videos
-
-| operation    | URL                    | Method | Status Code |
-|--------------|------------------------|--------|-------------|
-| delete video | /scheduler/videos/:vid | DELETE | 200, 400    |
+定时任务，目前实际只有一个删除视频的任务
