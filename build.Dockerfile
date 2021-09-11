@@ -2,7 +2,7 @@ FROM golang:1.16-alpine
 
 RUN apk add --no-cache git bash make
 ENV PS1='\n[\u@\h \w]\n$ '
-RUN go env -w GOPROXY=https://goproxy.io
+RUN go env -w GOPROXY=https://goproxy.cn
 
 ENV PROJECT=/go/src/video_server
 WORKDIR /go/src/
