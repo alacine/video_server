@@ -3,6 +3,7 @@ package dbops
 import (
 	"database/sql"
 
+	// registe mysql
 	_ "github.com/go-sql-driver/mysql"
 )
 

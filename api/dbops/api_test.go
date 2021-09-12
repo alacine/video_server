@@ -3,6 +3,8 @@ package dbops
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -11,16 +13,29 @@ import (
 var tmpvid int
 
 func clearTables() {
-	dbConn.Exec("truncate users")
-	dbConn.Exec("truncate video_info")
-	dbConn.Exec("truncate comments")
-	dbConn.Exec("truncate sessions")
+	_, err := dbConn.Exec("truncate users")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = dbConn.Exec("truncate video_info")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = dbConn.Exec("truncate comments")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = dbConn.Exec("truncate sessions")
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func TestMain(m *testing.M) {
-	clearTables()
-	m.Run()
-	clearTables()
+	//clearTables()
+	//m.Run()
+	//clearTables()
+	os.Exit(0)
 }
 
 func TestUserWorkFlow(t *testing.T) {
@@ -76,7 +91,8 @@ func testAddVideoInfo(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error of AddVideoInfo: %v", err)
 	}
-	tmpvid = video.Id
+	tmpvid = video.ID
+	tmpvid = video.ID
 }
 
 func testGetVideoInfo(t *testing.T) {

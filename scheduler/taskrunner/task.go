@@ -11,7 +11,7 @@ import (
 )
 
 func deleteVideo(vid int) error {
-	err := os.Remove(VIDEO_DIR + strconv.Itoa(vid))
+	err := os.Remove(VideoDir + strconv.Itoa(vid))
 	if err != nil && !os.IsNotExist(err) {
 		log.Printf("Deleting video error")
 		return err
@@ -19,6 +19,7 @@ func deleteVideo(vid int) error {
 	return nil
 }
 
+// VideoClearDispatcher 视频清理任务分配，生产者
 func VideoClearDispatcher(dc dataChan) error {
 	res, err := dbops.ReadVideoDeletionRecord(3)
 	if err != nil {
@@ -34,6 +35,7 @@ func VideoClearDispatcher(dc dataChan) error {
 	return nil
 }
 
+// VideoClearExecutor 视频清理任务执行，消费者
 func VideoClearExecutor(dc dataChan) error {
 	errMap := sync.Map{}
 forloop:
@@ -54,10 +56,7 @@ forloop:
 		}
 	}
 	errMap.Range(func(k, v interface{}) bool {
-		if v.(error) != nil {
-			return false
-		}
-		return true
+		return v.(error) == nil
 	})
 	return nil
 }

@@ -2,7 +2,8 @@
 
 ALL_SERVICES = api scheduler streamserver
 
-.PHONY: all clean status startdb run-deamo stop $(ALL_SERVICES) help
+.PHONY: all clean status startdb run-deamo install stop $(ALL_SERVICES) \
+	build-in-docker clean restore help lint
 
 all: $(ALL_SERVICES)
 
@@ -20,18 +21,19 @@ run-daemon: | startdb $(ALL_SERVICES)
 	cd scheduler && nohup ./scheduler &
 	cd api && nohup ./api &
 
-build-in-docker:
-	mkdir -pv local-cache/db local-cache/api local-cache/scheduler local-cache/streamserver/videos
-	docker build . -t video_server_build -f build.Dockerfile
-	docker build . -t video_server_base -f base.Dockerfile
-
-install stop:
+lint install stop:
 	@for dir in $(ALL_SERVICES); do \
 		$(MAKE) -C $$dir $@; \
 	done
 
 stopall: stop
 	docker-compose stop db
+
+build-in-docker:
+	mkdir -pv local-cache/db local-cache/api local-cache/scheduler \
+		local-cache/streamserver/videos
+	docker build . -t video_server_build -f build.Dockerfile
+	docker build . -t video_server_base -f base.Dockerfile
 
 clean:
 	@for dir in $(ALL_SERVICES); do \
@@ -52,13 +54,15 @@ restore: clean
 help:
 	@echo "(none):          build all submodules"
 	@echo "startdb:         start database in local docker"
+	@echo "install:         install submodules in GOPATH/bin"
 	@echo "run-deamon:      start submodules in local environment"
+	@echo "stop:            kill all local submodules' process"
+	@echo "stopall:         do 'stop' and stop database docker"
+	@echo "lint:            lint code with revive, errcheck and golangci-lint,"
+	@echo "                 make sure you have these tools installed."
 	@echo "build-in-docker: build two docker images:"
 	@echo "                     1. video_server_build: contains all built submodules binary"
 	@echo "                     2. video_server_base: base image for submodules' image"
-	@echo "install:         install submodules in GOPATH/bin"
-	@echo "stop:            kill all local submodules' process"
-	@echo "stopall:         do 'stop' and stop database docker"
 	@echo "clean:           delete all binarys, nohup logs and images: video_server_base, video_server_build"
 	@echo "restore:         do 'clean' and database volume"
 	@echo ""

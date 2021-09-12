@@ -8,6 +8,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// RegisterHandlers ...
 func RegisterHandlers() *httprouter.Router {
 	router := httprouter.New()
 	router.DELETE("/scheduler/video/:vid", DeleteVideo)

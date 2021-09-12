@@ -12,6 +12,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// CreateUser ...
 func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ubody := &defs.UserCredential{}
 	dec := json.NewDecoder(r.Body)
@@ -26,11 +27,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		log.Printf("(Error) CreateUser: %s", err)
 		return
 	}
-	new_user := &defs.UserInfo{
+	user := &defs.UserInfo{
 		Username: ubody.Username,
-		Id:       uid,
+		ID:       uid,
 	}
-	resp, err := json.Marshal(new_user)
+	resp, err := json.Marshal(user)
 	if err != nil {
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 		log.Printf("(Error) CreateUser: %s", err)
@@ -39,6 +40,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	sendNormalResponse(w, string(resp), http.StatusCreated) // 201
 }
 
+// GetUserInfo ...
 func GetUserInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	uid, err := strconv.Atoi(p.ByName("uid"))
 	if err != nil {
@@ -51,7 +53,7 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		log.Printf("(Error) GetUserInfo: %s", err)
 		return
 	}
-	ui := &defs.UserInfo{Id: user.Id, Username: user.Name}
+	ui := &defs.UserInfo{ID: user.ID, Username: user.Name}
 	if resp, err := json.Marshal(ui); err != nil {
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 	} else {

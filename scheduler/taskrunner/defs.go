@@ -1,10 +1,17 @@
 package taskrunner
 
 const (
-	READY_TO_DISPATCH = "d"
-	READY_TO_EXECUTE  = "e"
-	CLOSE             = "c"
-	VIDEO_DIR         = "./videos/"
+	// ReadyToDispatch 可分配信号
+	ReadyToDispatch = "d"
+
+	// ReadyToExecute 可执行信号
+	ReadyToExecute = "e"
+
+	// Close 关闭信号
+	Close = "c"
+
+	// VideoDir 视频存放路径
+	VideoDir = "./videos/"
 )
 
 type controlChan chan string

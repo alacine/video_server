@@ -9,54 +9,69 @@ import (
 	"github.com/alacine/video_server/api/defs"
 )
 
+// InsertSession ...
 func InsertSession(sid string, ttl int64, uid int) error {
 	ttlstr := strconv.FormatInt(ttl, 10)
-	stmtIns, err := dbConn.Prepare(`INSERT INTO sessions (session_id, TTL, uid)
+	stmt, err := dbConn.Prepare(`INSERT INTO sessions (session_id, TTL, uid)
 									VALUES (?, ?, ?)`)
-	defer stmtIns.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			log.Printf("close db connection failed: %s", err)
+		}
+	}()
 	if err != nil {
 		return err
 	}
-	_, err = stmtIns.Exec(sid, ttlstr, uid)
+	_, err = stmt.Exec(sid, ttlstr, uid)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
+// RetrieveSession ...
 func RetrieveSession(sid string) (*defs.SimpleSession, error) {
 	ss := &defs.SimpleSession{}
-	stmtOut, err := dbConn.Prepare(`SELECT TTL, name
+	stmt, err := dbConn.Prepare(`SELECT TTL, name
 									FROM sessions WHERE session_id = ?`)
-	defer stmtOut.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			log.Printf("close db connection failed: %s", err)
+		}
+	}()
 	if err != nil {
 		return nil, err
 	}
 	var ttl string
 	var uid int
-	err = stmtOut.QueryRow(sid).Scan(&ttl, &uid)
+	err = stmt.QueryRow(sid).Scan(&ttl, &uid)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
 	if res, err := strconv.ParseInt(ttl, 10, 64); err == nil {
 		ss.TTL = res
-		ss.UserId = uid
+		ss.UserID = uid
+		ss.UserID = uid
 	} else {
 		return nil, err
 	}
 	return ss, nil
 }
 
-// 当服务重启的时候需要进行此操作, 重新获取数据库中所有的 session 到缓存中
+// RetrieveAllSessions 当服务重启的时候需要进行此操作, 重新获取数据库中所有的 session 到缓存中
 func RetrieveAllSessions() (*sync.Map, error) {
 	m := &sync.Map{}
-	stmtOut, err := dbConn.Prepare("SELECT * FROM sessions")
-	defer stmtOut.Close()
+	stmt, err := dbConn.Prepare("SELECT * FROM sessions")
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			log.Printf("close db connection failed: %s", err)
+		}
+	}()
 	if err != nil {
 		log.Printf("%s", err)
 		return nil, err
 	}
-	rows, err := stmtOut.Query()
+	rows, err := stmt.Query()
 	if err != nil {
 		log.Printf("%s", err)
 		return nil, err
@@ -69,7 +84,7 @@ func RetrieveAllSessions() (*sync.Map, error) {
 			log.Printf("retrieve sessions error: %s", err)
 		}
 		if ttl, err := strconv.ParseInt(ttlstr, 10, 64); err == nil {
-			ss := &defs.SimpleSession{UserId: uid, TTL: ttl}
+			ss := &defs.SimpleSession{UserID: uid, TTL: ttl}
 			m.Store(id, ss)
 			log.Printf(" session id: %s, ttl: %d", id, ss.TTL)
 		} else {
@@ -79,14 +94,19 @@ func RetrieveAllSessions() (*sync.Map, error) {
 	return m, nil
 }
 
+// DeleteSession ...
 func DeleteSession(sid string) error {
-	stmtDel, err := dbConn.Prepare("delete from sessions where session_id = ?")
+	stmt, err := dbConn.Prepare("delete from sessions where session_id = ?")
 	if err != nil {
 		log.Printf("%s", err)
 		return err
 	}
-	defer stmtDel.Close()
-	if _, err := stmtDel.Exec(sid); err != nil {
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			log.Printf("close db connection failed: %s", err)
+		}
+	}()
+	if _, err := stmt.Exec(sid); err != nil {
 		return err
 	}
 	return nil

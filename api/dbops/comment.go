@@ -5,24 +5,31 @@ import (
 
 	"github.com/alacine/video_server/api/defs"
 	"github.com/alacine/video_server/api/utils"
+
+	// Registe mysql
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// AddNewComment ...
 func AddNewComment(vid int, aid int, content string) error {
 	id, err := utils.NewUUID()
 	if err != nil {
 		return err
 	}
-	stmtIns, err := dbConn.Prepare(`
+	stmt, err := dbConn.Prepare(`
 		INSERT INTO comments (id, video_id, author_id, content)
 		VALUES (?, ?, ?, ?)
 	`)
-	defer stmtIns.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			log.Printf("close db connection failed: %s", err)
+		}
+	}()
 	if err != nil {
 		log.Printf("(ERROR) AddNewComment sql prepare error: %s", err)
 		return err
 	}
-	_, err = stmtIns.Exec(id, vid, aid, content)
+	_, err = stmt.Exec(id, vid, aid, content)
 	if err != nil {
 		log.Printf("(ERROR) AddNewComment sql exec error: %s", err)
 		return err
@@ -30,8 +37,9 @@ func AddNewComment(vid int, aid int, content string) error {
 	return nil
 }
 
+// ListComments ...
 func ListComments(vid, from, to int) ([]*defs.Comment, error) {
-	stmtOut, err := dbConn.Prepare(`
+	stmt, err := dbConn.Prepare(`
 		SELECT comments.id, users.name, comments.content, comments.post_time
 		FROM comments INNER JOIN users ON comments.author_id = users.id
 		WHERE comments.video_id = ?
@@ -42,13 +50,17 @@ func ListComments(vid, from, to int) ([]*defs.Comment, error) {
 	/* 注意这里查询的区间是前开后闭，后带等号是因为在 MYSQL 里面记录的时间到秒，
 	 * 如果 to 是当前时间而且是开区间，写入之后马上读取会发生读不到的情况
 	 */
-	defer stmtOut.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			log.Printf("close db connection failed: %s", err)
+		}
+	}()
 	var comments []*defs.Comment
 	if err != nil {
 		log.Printf("(ERROR) ListComments sql prepare error: %s", err)
 		return comments, err
 	}
-	rows, err := stmtOut.Query(vid, from, to)
+	rows, err := stmt.Query(vid, from, to)
 	if err != nil {
 		log.Printf("(ERROR) ListComments sql exec error: %s", err)
 		return comments, err
@@ -59,8 +71,8 @@ func ListComments(vid, from, to int) ([]*defs.Comment, error) {
 			return comments, err
 		}
 		c := &defs.Comment{
-			Id:         id,
-			VideoId:    vid,
+			ID:         id,
+			VideoID:    vid,
 			AuthorName: name,
 			Content:    content,
 			PostTime:   ptime,

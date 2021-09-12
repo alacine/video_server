@@ -12,6 +12,7 @@ import (
 	"github.com/alacine/video_server/api/config"
 )
 
+// NewUUID ...
 func NewUUID() (string, error) {
 	uuid := make([]byte, 16)
 	n, err := io.ReadFull(rand.Reader, uuid)
@@ -25,11 +26,13 @@ func NewUUID() (string, error) {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:]), nil
 }
 
+// GetCurrentTimestampSec ...
 func GetCurrentTimestampSec() int {
 	timestamp, _ := strconv.Atoi(strconv.FormatInt(time.Now().UnixNano()/1e9, 10))
 	return timestamp
 }
 
+// SendDeleteVideoRequest ...
 func SendDeleteVideoRequest(vid int) {
 	addr := config.GetScheduler()
 	url := "http://" + addr + "/scheduler/video/" + strconv.Itoa(vid)

@@ -9,6 +9,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// DeleteVideo ...
 func DeleteVideo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	vid, err := strconv.Atoi(p.ByName("vid"))
 	if err != nil || vid < 1 {

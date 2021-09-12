@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// Configuration 配置项
 type Configuration struct {
 	StreamAddr string `json:"stream_addr"`
 	Scheduler  string `json:"scheduler_addr"`
@@ -17,7 +18,11 @@ var configuration *Configuration
 func init() {
 	configPath := filepath.Join("config", "conf.json")
 	file, _ := os.Open(configPath)
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Fatalf("close config file failed %s", err)
+		}
+	}()
 	decoder := json.NewDecoder(file)
 	configuration = &Configuration{}
 	err := decoder.Decode(configuration)
@@ -28,10 +33,12 @@ func init() {
 	}
 }
 
+// GetStreamAddr 获取 streamserver 服务器地址
 func GetStreamAddr() string {
 	return configuration.StreamAddr
 }
 
+// GetScheduler 获取 scheduler 服务器地址
 func GetScheduler() string {
 	return configuration.Scheduler
 }

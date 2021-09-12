@@ -17,15 +17,15 @@ func (m middleWareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusTooManyRequests, "Too many requests")
 		return
 	}
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Add("Access-Control-Allow-Methods", "POST, GET")
-	w.Header().Add("Access-Control-Allow-Headers", "Content-Type, X-Session-Id, X-X-User-Name, Cookie")
-	w.Header().Set("Content-Type", "application/json")
-	r.Header.Set("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
-	m.r.ServeHTTP(w, r)
 	defer m.l.ReleaseConn()
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Session-Id, X-User-Id, Cookie")
+	w.Header().Add("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
+	m.r.ServeHTTP(w, r)
 }
 
+// NewMiddleWareHandler ...
 func NewMiddleWareHandler(r *httprouter.Router, cc int) http.Handler {
 	m := middleWareHandler{}
 	m.r = r
@@ -33,6 +33,7 @@ func NewMiddleWareHandler(r *httprouter.Router, cc int) http.Handler {
 	return m
 }
 
+// RegisterHandlers ...
 func RegisterHandlers() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/stream/videos/:vid", streamHandler)
@@ -42,6 +43,6 @@ func RegisterHandlers() *httprouter.Router {
 
 func main() {
 	r := RegisterHandlers()
-	mh := NewMiddleWareHandler(r, 2)
+	mh := NewMiddleWareHandler(r, 5)
 	log.Fatalln(http.ListenAndServe(":9000", mh))
 }

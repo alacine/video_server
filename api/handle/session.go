@@ -12,6 +12,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// Login 登录
 func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ubody := &defs.UserCredential{}
 	dec := json.NewDecoder(r.Body)
@@ -28,8 +29,8 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 
-	id := session.GenerateNewSessionId(uid)
-	si := &defs.SignedIn{Success: true, SessionId: id, UserId: uid}
+	id := session.GenerateNewSessionID(uid)
+	si := &defs.SignedIn{Success: true, SessionID: id, UserID: uid}
 	if resp, err := json.Marshal(si); err != nil {
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 	} else {
@@ -38,8 +39,9 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 }
 
+// Logout 退出登录
 func Logout(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	sid, err := r.Cookie(middleware.HEADER_FIELD_SESSION)
+	sid, err := r.Cookie(middleware.HeaderFieldSession)
 	if err != nil {
 		sendErrorResponse(w, defs.ErrorNotAuthUser) // 401
 	}
