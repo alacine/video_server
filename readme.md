@@ -1,6 +1,7 @@
 ## Go 视频网站项目
 
 [![build](https://github.com/alacine/video_server/actions/workflows/build.yml/badge.svg)](https://github.com/alacine/video_server/actions/workflows/build.yml)
+[![golangci-lint](https://github.com/alacine/video_server/actions/workflows/cilint.yml/badge.svg)](https://github.com/alacine/video_server/actions/workflows/cilint.yml)
 
 在线视频网站项目的后端，前端在 [video_server_vue](https://github.com/alacine/video_server_vue)
 
