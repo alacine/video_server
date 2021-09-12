@@ -18,7 +18,8 @@ func (m middleWareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// cors
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Session-Id, X-User-Id, Cookie")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Session-ID, X-User-ID, Cookie")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Session-ID, X-User-ID, Cookie")
 	w.Header().Add("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
 	// json header
 	w.Header().Set("Content-Type", "application/json")
@@ -32,6 +33,7 @@ func NewMiddleWareHandler(r *httprouter.Router) http.Handler {
 	return m
 }
 
+// Middleware 中间件
 type Middleware func(httprouter.Handle) httprouter.Handle
 
 // Inline 包装单独的中间件
@@ -42,6 +44,7 @@ func Inline(origin httprouter.Handle, mws ...Middleware) httprouter.Handle {
 	return origin
 }
 
+// RegisterHandlers 注册路由
 func RegisterHandlers() *httprouter.Router {
 	router := httprouter.New()
 
@@ -63,6 +66,7 @@ func RegisterHandlers() *httprouter.Router {
 	return router
 }
 
+// Prepare 载入数据库中原有 session
 func Prepare() {
 	session.LoadSessionsFromDB()
 }

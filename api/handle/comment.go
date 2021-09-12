@@ -12,6 +12,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// PostComment ...
 func PostComment(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	cbody := &defs.NewComment{}
 	dec := json.NewDecoder(r.Body)
@@ -26,7 +27,7 @@ func PostComment(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, defs.ErrorRequestBodyParseFailed) // 400
 	}
 	log.Printf("postcomment %v, %v", vid, cbody)
-	if err := dbops.AddNewComment(vid, cbody.AuthorId, cbody.Content); err != nil {
+	if err := dbops.AddNewComment(vid, cbody.AuthorID, cbody.Content); err != nil {
 		log.Printf("(Error) PostComment: %s", err)
 		sendErrorResponse(w, defs.ErrorDBError) // 500
 	} else {
@@ -34,6 +35,7 @@ func PostComment(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 }
 
+// ListComments ...
 func ListComments(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	vid, err := strconv.Atoi(p.ByName("vid"))
 	if err != nil {
@@ -48,11 +50,11 @@ func ListComments(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 	cs := &defs.Comments{Comment: comments}
-	if resp, err := json.Marshal(cs); err != nil {
+	resp, err := json.Marshal(cs)
+	if err != nil {
 		log.Printf("(Error) ListComments: %s", err)
 		sendErrorResponse(w, defs.ErrorInternalFaults) // 500
 		return
-	} else {
-		sendNormalResponse(w, string(resp), http.StatusOK) /// 200
 	}
+	sendNormalResponse(w, string(resp), http.StatusOK) /// 200
 }

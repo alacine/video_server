@@ -1,5 +1,6 @@
 package taskrunner
 
+// Runner ...
 type Runner struct {
 	Controller controlChan // 生产者和消费者交换信息
 	Error      controlChan
@@ -10,6 +11,7 @@ type Runner struct {
 	Executor   fn
 }
 
+// NewRunner ...
 func NewRunner(size int, longlived bool, d fn, e fn) *Runner {
 	return &Runner{
 		Controller: make(chan string, 1), // 非阻塞带 buffer 的 channel
@@ -33,32 +35,32 @@ func (r *Runner) startDispatch() {
 	for {
 		select {
 		case c := <-r.Controller:
-			if c == READY_TO_DISPATCH {
+			if c == ReadyToDispatch {
 				err := r.Dispatcher(r.Data)
 				if err != nil {
-					r.Error <- CLOSE
+					r.Error <- Close
 				} else {
-					r.Controller <- READY_TO_EXECUTE
+					r.Controller <- ReadyToExecute
 				}
 			}
-			if c == READY_TO_EXECUTE {
+			if c == ReadyToExecute {
 				err := r.Executor(r.Data)
 				if err != nil {
-					r.Error <- CLOSE
+					r.Error <- Close
 				} else {
-					r.Controller <- READY_TO_DISPATCH
+					r.Controller <- ReadyToDispatch
 				}
 			}
 		case e := <-r.Error:
-			if e == CLOSE {
+			if e == Close {
 				return
 			}
-		default:
 		}
 	}
 }
 
+// StartAll 启动 Runner
 func (r *Runner) StartAll() {
-	r.Controller <- READY_TO_DISPATCH
+	r.Controller <- ReadyToDispatch
 	r.startDispatch()
 }

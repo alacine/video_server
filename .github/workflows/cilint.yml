@@ -1,0 +1,41 @@
+name: golangci-lint
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  golangci:
+    strategy:
+      matrix:
+        go-version: [1.17]
+        os: [macos-latest, windows-latest]
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint for api
+        uses: golangci/golangci-lint-action@v2
+        with:
+          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+          version: v1.29
+          # Optional: working directory, useful for monorepos
+          working-directory: api
+
+          # Optional: golangci-lint command line arguments.
+          # args: --issues-exit-code=0
+
+          # Optional: show only new issues if it's a pull request. The default value is `false`.
+          # only-new-issues: true
+
+      - name: golangci-lint for streamserver
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.29
+          working-directory: streamserver
+
+      - name: golangci-lint for scheduler
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.29
+          working-directory: scheduler

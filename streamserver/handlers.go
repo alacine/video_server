@@ -15,9 +15,8 @@ import (
 
 func streamHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	vid := p.ByName("vid")
-	vl := filepath.Join(VIDEO_DIR, vid)
+	vl := filepath.Join(VideoDir, vid)
 	video, err := os.Open(vl)
-	defer video.Close()
 	if os.IsNotExist(err) {
 		sendErrorResponse(
 			w,
@@ -32,6 +31,11 @@ func streamHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 			http.StatusText(http.StatusInternalServerError),
 		) // 500
 	} else {
+		defer func() {
+			if err := video.Close(); err != nil {
+				log.Printf("streamHandler close video failed %s", err)
+			}
+		}()
 		// 告诉浏览器使用二进制流解析为 video/mp4 格式
 		w.Header().Set("Content-Type", "video/mp4")
 		// 二进制流传输到 Client 端
@@ -40,8 +44,8 @@ func streamHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	r.Body = http.MaxBytesReader(w, r.Body, MAX_UPLOAD_SIZE)
-	if err := r.ParseMultipartForm(MAX_UPLOAD_SIZE); err != nil {
+	r.Body = http.MaxBytesReader(w, r.Body, MaxUploadSize)
+	if err := r.ParseMultipartForm(MaxUploadSize); err != nil {
 		log.Printf("%s", err)
 		sendErrorResponse(
 			w,
@@ -76,7 +80,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 		) // 400
 		return
 	}
-	err = ioutil.WriteFile(filepath.Join(VIDEO_DIR, vid), data, 0666)
+	err = ioutil.WriteFile(filepath.Join(VideoDir, vid), data, 0666)
 	if err != nil {
 		log.Printf("Write file error: %v", err)
 		sendErrorResponse(
@@ -87,5 +91,8 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 		return
 	}
 	w.WriteHeader(http.StatusCreated) // 201
-	io.WriteString(w, "Upload Successfully")
+	_, err = io.WriteString(w, "Upload Successfully")
+	if err != nil {
+		log.Printf("sendErrorResponse error: %s", err)
+	}
 }
