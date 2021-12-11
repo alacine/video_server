@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                sh 'apk add make'
+                sh 'apk add make git'
                 sh 'make'
             }
         }
