@@ -6,7 +6,7 @@
 在线视频网站项目的后端，前端在 [video_server_vue](https://github.com/alacine/video_server_vue)
 
 分了 api、stream、scheduler 三个服务。项目主要用来熟悉 Go 以及学习 Makefile、
-Docker、docker-compose、kubernetes、github actions 的基本使用
+Docker、docker-compose、github actions、Jenkins 的基本使用
 
 ### 运行启动说明
 
