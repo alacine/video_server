@@ -20,6 +20,7 @@ run-daemon: | startdb $(ALL_SERVICES)
 	cd streamserver && nohup ./streamserver &
 	cd scheduler && nohup ./scheduler &
 	cd api && nohup ./api &
+	tail -f api/nohup.out streamserver/nohup.out scheduler/nohup.out
 
 lint install stop:
 	@for dir in $(ALL_SERVICES); do \
@@ -34,6 +35,7 @@ build-in-docker:
 		local-cache/streamserver/videos
 	docker build . -t video_server_build -f build.Dockerfile
 	docker build . -t video_server_base -f base.Dockerfile
+	docker-compose build db
 
 clean:
 	@for dir in $(ALL_SERVICES); do \
