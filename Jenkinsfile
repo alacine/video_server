@@ -8,10 +8,15 @@ pipeline {
     triggers {
         GenericTrigger(
             genericVariables: [
-              [key: 'appn', value: '$.app.name']
+                [
+                     key: 'appname',
+                     value: '$.app.name',
+                     expressionType: 'JSONPath', 
+                     defaultValue: 'default app name'
+                ]
             ],
             token: 'abc123',
-            causeString: 'Triggered on $ref',
+            causeString: 'Triggered on $appname',
             printContributedVariables: true,
             printPostContent: true
         )
@@ -19,7 +24,7 @@ pipeline {
     stages {
         stage('env') {
             steps {
-                sh 'echo $appn'
+                sh 'echo $appname'
                 sh 'printenv'
             }
         }
